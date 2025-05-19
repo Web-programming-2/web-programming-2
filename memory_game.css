@@ -1,0 +1,131 @@
+/* 기본 설정 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  font-family: 'Arial', sans-serif;
+  overflow: hidden;
+}
+
+/* 메뉴 화면 */
+#menu-container {
+  background-image: url('배경이미지.1.jpg');
+  background-size: contain; /* 변경 */
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: 4rem;
+  text-align: center;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 2px 2px 8px #000;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 20px 40px;
+  margin-bottom: 50px;
+}
+
+.menu {
+  display: flex;
+  gap: 20px;
+}
+
+.menu-button {
+  padding: 20px 40px;
+  font-size: 1.5rem;
+  background: #fff;
+  border: none;
+  border-radius: 30px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.menu-button:hover {
+  transform: scale(1.1);
+}
+
+/* 전환 화면 */
+#transition-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: black;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+/* 애니메이션 키프레임 추가 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.7;
+  }
+}
+
+#transition-image {
+  object-fit: cover;
+  opacity: 0;
+  position: absolute;
+  animation: fadeIn 2s forwards;
+}
+
+#transition-text {
+  position: relative;
+  z-index: 2;
+  font-size: 1.5rem;
+  color: white;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+
+#game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 690px;
+  height: 1200px;
+  position: relative;
+  margin: 0 auto;
+}
+
+
+#game-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 690px;
+  height: 1200px;
+  opacity: 0.45; /* 배경처럼 희미하게 */
+  z-index: 0;
+}
+
+#canvas-game {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
