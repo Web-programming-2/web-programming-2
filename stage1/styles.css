@@ -44,6 +44,22 @@ canvas {
   animation: fadeIn 2s forwards;
 }
 
+
+/* 전환 화면 */
+#transition-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: black;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
 #transition-text {
   position: relative;
   z-index: 2;
@@ -55,6 +71,7 @@ canvas {
   border-radius: 10px;
   max-width: 80%;
 }
+
 
 #game-container {
   display: flex;
