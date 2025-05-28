@@ -1,8 +1,3 @@
-// 🔊 배경음 초기화 (1번만 선언!)
-const bgmAudio = new Audio("bgm.mp3");
-bgmAudio.loop = true;
-bgmAudio.volume = 0.5;
-
 // 🎮 공통 요소 선택
 const startBtn = document.getElementById("start-button");
 const menuContainer = document.getElementById("menu-container");
@@ -15,14 +10,10 @@ const settingsBackBtn = document.getElementById("settings-back-button");
 const volumeSlider = document.getElementById("volume-slider");
 const volumeValue = document.getElementById("volume-value");
 
-// ▶️ 게임 시작 버튼 (1번만 등록!)
+// ▶️ 게임 시작 버튼
 startBtn.addEventListener("click", () => {
   menuContainer.style.display = "none";
   transitionScreen.style.display = "flex";
-
-startBtn.addEventListener("click", () => {
-  bgmAudio.play();  // 사용자 클릭 이후 실행되므로 OK
-});
 
   setTimeout(() => {
     transitionScreen.style.display = "none";
@@ -42,10 +33,20 @@ settingsBackBtn.addEventListener("click", () => {
   menuContainer.style.display = "flex";
 });
 
-// 🔊 볼륨 슬라이더 조절
+// 🔊 볼륨 슬라이더 조절 (텍스트만 갱신)
 volumeSlider.addEventListener("input", () => {
   const percent = Math.round(volumeSlider.value * 100);
   volumeValue.textContent = percent + "%";
+});
 
-  bgmAudio.volume = volumeSlider.value;
+const bgm = document.getElementById("bgm");
+const bgmToggle = document.getElementById("bgm-toggle");
+
+bgmToggle.addEventListener("change", () => {
+  if (bgmToggle.checked) {
+    bgm.muted = false;   // 음소거 해제
+    bgm.play();          // 재생 시도
+  } else {
+    bgm.pause();         // 끔
+  }
 });

@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>설기의 추억여행</title>
-  <link rel="stylesheet" href="memory_game.css">
+  <link rel="stylesheet" href="memory_game.css" />
 </head>
 <body>
   <!-- 1. 메뉴 화면 -->
   <div class="container" id="menu-container">
     <h1 class="title">설기의 <br>추억여행!</h1>
-  <div class="menu">
-  <button class="menu-button" id="start-button">🎮 게임 시작</button>
-  <button class="menu-button" id="shop-button">🛍 상점</button>
-  <button class="menu-button" id="settings-button">⚙️ 설정</button>
+    <div class="menu">
+      <button class="menu-button" id="start-button">🎮 게임 시작</button>
+      <button class="menu-button" id="shop-button">🛍 상점</button>
+      <button class="menu-button" id="settings-button">⚙️ 설정</button>
     </div>
   </div>
 
   <!-- 2. 로딩 화면 -->
   <div id="transition-screen" class="container" style="display: none;">
-    <img src="봄1_로딩창.jpg" alt="Intro Image" id="transition-image">
-    <p id="transition-text">봄에는 역시 벚꽃! 무작정 반포 한강 공원으로 가보려는데 도착한 뚝섬 유원지에서 피크닉을 잠시 즐겨보자</p>
+    <img src="봄1_로딩창.jpg" alt="Intro Image" id="transition-image" />
+    <p id="transition-text">
+      봄에는 역시 벚꽃! 무작정 반포 한강 공원으로 가보려는데 도착한 뚝섬 유원지에서 피크닉을 잠시 즐겨보자
+    </p>
   </div>
 
   <!-- 3. 스테이지 선택 화면 -->
@@ -31,36 +33,42 @@
     <button class="menu-button" onclick="location.href='stage3/index.html'">🐾 Stage 3: 꿍마이의 모험</button>
   </div>
 
+  <!-- 4. 게임 캔버스 화면 -->
   <div id="game-container" style="display: none;">
-    <img src="봄1.jpg" alt="Intro Image" id="game-image">
+    <img src="봄1.jpg" alt="Intro Image" id="game-image" />
     <canvas id="canvas-game" width="690" height="1200"></canvas>
   </div>
 
-  <!-- 설정 화면 -->
-<div id="settings-screen" class="container" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
-  <h2>⚙️ 게임 설정</h2>
+  <!-- 5. 설정 화면 -->
+  <div id="settings-screen" class="container" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+    <h2>⚙️ 게임 설정</h2>
 
-  <!-- 볼륨 슬라이더 -->
-  <label for="volume-slider">🔊 볼륨</label>
-  <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
-  <span id="volume-value">50%</span>
+    <!-- 볼륨 슬라이더 -->
+    <label for="volume-slider">🔊 볼륨</label>
+    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" />
+    <span id="volume-value">50%</span>
 
-  <!-- BGM 토글 -->
-  <label>
-    <input type="checkbox" id="bgm-toggle" checked>
-    🎵 배경음악 켜기
-  </label>
+    <!-- BGM 토글 -->
+    <label>
+      <input type="checkbox" id="bgm-toggle" />
+      🎵 배경음악 켜기
+    </label>
 
-  <!-- 공 모양 선택 -->
-  <label for="ball-select">🏀 공 모양 선택</label>
-  <select id="ball-select">
-    <option value="basketball.png">농구공</option>
-    <option value="baseball.png">야구공</option>
-  </select>
+    <!-- 공 모양 선택 -->
+    <label for="ball-select">🏀 공 모양 선택</label>
+    <select id="ball-select">
+      <option value="basketball.png">농구공</option>
+      <option value="baseball.png">야구공</option>
+    </select>
 
-  <!-- 뒤로가기 버튼 -->
-  <button class="menu-button" id="settings-back-button">⬅️ 돌아가기</button>
-</div>
-<script src="memory_game.js"></script>
+    <!-- 뒤로가기 버튼 -->
+    <button class="menu-button" id="settings-back-button">⬅️ 돌아가기</button>
+  </div>
+
+  <!-- 6. BGM 오디오 요소 (음소거 상태 시작, JS에서 켤 수 있음) -->
+  <audio id="bgm" src="bgm.mp3" autoplay loop muted></audio>
+
+  <!-- 7. JS 로딩 -->
+  <script src="memory_game.js"></script>
 </body>
 </html>
