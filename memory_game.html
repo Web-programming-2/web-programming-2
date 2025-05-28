@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>설기의 추억여행</title>
   <link rel="stylesheet" href="memory_game.css">
-  <style>
-  </style>
 </head>
 <body>
+  <!-- 1. 메뉴 화면 -->
   <div class="container" id="menu-container">
     <h1 class="title">설기의 <br>추억여행!</h1>
     <div class="menu">
@@ -17,17 +16,37 @@
     </div>
   </div>
 
-  <div id="transition-screen" class="container">
+  <!-- 2. 로딩 화면 -->
+  <div id="transition-screen" class="container" style="display: none;">
     <img src="봄1_로딩창.jpg" alt="Intro Image" id="transition-image">
     <p id="transition-text">봄에는 역시 벚꽃! 무작정 반포 한강 공원으로 가보려는데 도착한 뚝섬 유원지에서 피크닉을 잠시 즐겨보자</p>
   </div>
 
-  <div id="game-container">
-    <img src="봄1.jpg" alt="Intro Image" id="game-image">
-    <canvas id="canvas-game" width="690" height="1200"></canvas>
-
+  <!-- 3. 스테이지 선택 화면 -->
+  <div id="stage-select" class="container" style="display: none; text-align: center;">
+    <h2>어디로 떠나볼까?</h2>
+    <button class="menu-button" onclick="location.href='stage1/index.html'">🌸 Stage 1: 봄날의 기억</button>
+    <button class="menu-button" onclick="location.href='stage2/koongmai.html'">🐾 Stage 2: 꿍마이의 모험</button>
   </div>
 
-  <script src= "memory_game.js"></script>
+  <div id="game-container" style="display: none;">
+    <img src="봄1.jpg" alt="Intro Image" id="game-image">
+    <canvas id="canvas-game" width="690" height="1200"></canvas>
+  </div>
+
+  <script>
+    document.getElementById("start-button").addEventListener("click", function () {
+      document.getElementById("menu-container").style.display = "none";
+      document.getElementById("transition-screen").style.display = "block";
+
+      // 2.5초 후 스테이지 선택 화면으로 자동 전환
+      setTimeout(() => {
+        document.getElementById("transition-screen").style.display = "none";
+        document.getElementById("stage-select").style.display = "block";
+      }, 2500);
+    });
+  </script>
+
+  <script src="memory_game.js"></script>
 </body>
 </html>
