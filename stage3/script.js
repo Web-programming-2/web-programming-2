@@ -1,294 +1,337 @@
+/* ----------  캔버스 & 전환 화면  ---------- */
 const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const ctx    = canvas.getContext("2d");
+const trans  = document.getElementById("transition-screen");
 
-// 이미지 로드
-const bgImage     = new Image(); bgImage.src     = 'background.jpg';
-const heartImage  = new Image(); heartImage.src  = 'heart.png';
-const dogImage    = new Image(); dogImage.src    = 'dog.png';
-const ballImage   = new Image(); ballImage.src   = 'basketball.png';
+/* ----------  스테이지 데이터  ---------- */
+const stageBGs   = ["background1.jpg", "background2.jpg"];
+let   curStage   = 0;
+let   stageClear = false;
+const bgImg      = new Image();
+bgImg.src        = stageBGs[curStage];
 
-// 설정
-let ballRadius      = 12;
-const ballScale     = 0.2;
-const brickWidth    = 75;
-const brickHeight   = 20;
-const brickRowCount = 3;
-const brickOffsetTop= 100;
-const paddleWidth   = 75;
-const paddleHeight  = 10;
-const paddleOffset  = 60;
-const fallSpeed     = 1;
-const maxLives      = 3;
-const heartSize     = 50;
+/* ----------  스프라이트  ---------- */
+const ballImg  = new Image(); ballImg.src  = "basketball.png";
+const dogImg   = new Image(); dogImg.src   = "dog.png";
+const heartImg = new Image(); heartImg.src = "heart.png";
 
-let dogW = 0, dogH = 0;
-dogImage.onload = () => {
-  dogW = paddleWidth * 1.2;
-  dogH = dogImage.naturalHeight * (dogW / dogImage.naturalWidth);
-};
+/* ----------  전역 상태  ---------- */
+let cw, ch, bgW, bgH;
 
-let ballW = 0, ballH = 0;
-ballImage.onload = () => {
-  ballW = ballImage.naturalWidth * ballScale;
-  ballH = ballImage.naturalHeight * ballScale;
-  ballRadius = ballW / 2;
-};
-let cw, ch;
-let bgX = 0, bgY = 0, bgW = 0, bgH = 0;
+/* Ball */
+let ballW = 0, ballH = 0, ballR = 12, ballScale = 0.2;
 let x, y, dx = 3, dy = -3;
-let paddleX;
-let rightPressed = false, leftPressed = false;
-let bricks = [], cols, brickOffsetLeft;
-let falling = [];
-let lives = maxLives;
-let gameOver = false;
 
-function init() {
-  resizeCanvas();
-  initBricks();
-  resetBall();
-  lives = maxLives;
-  gameOver = false;
-  requestAnimationFrame(gameLoop);
-}
+/* Paddle / Dog */
+const paddleW = 75, paddleH = 10, paddleOff = 60;
+let   paddleX;
+let   dogW = 0, dogH = 0;
 
-window.addEventListener('load', init);
-window.addEventListener('resize', resizeCanvas);
+/* Bricks */
+const brickW = 75, brickH = 20, brickRows = 3, brickTop = 100;
+let   cols, brickLeft, bricks = [];
 
-function resizeCanvas() {
-  const desiredRatio = 9 / 16;
-  const maxWidth = window.innerWidth;
-  const maxHeight = window.innerHeight;
+/* Falling blocks */
+const fall = [];     // {x,y,w,h,color}
+const fallSpeed = 1;
 
-  let width = maxWidth;
-  let height = width / desiredRatio;
+/* Lives */
+let lives    = 3;
+const maxLives = 3;
+const heartS = 50;
 
-  if (height > maxHeight) {
-    height = maxHeight;
-    width = height * desiredRatio;
+/* Control */
+let right = false, left = false, gameOver = false;
+
+/* ----------  이미지 로드 시 크기 계산  ---------- */
+ballImg.onload = () => {
+  ballW = ballImg.naturalWidth  * ballScale;
+  ballH = ballImg.naturalHeight * ballScale;
+  ballR = ballW / 2;
+};
+
+dogImg.onload = () => {
+  dogW = paddleW * 1.2;
+  dogH = dogImg.naturalHeight * (dogW / dogImg.naturalWidth);
+};
+
+/* ----------  유틸리티  ---------- */
+function resize() {
+  const ratio  = 9 / 16;
+  const winW   = window.innerWidth;
+  const winH   = window.innerHeight;
+  let   w      = winW;
+  let   h      = w / ratio;
+
+  if (h > winH) {
+    h = winH;
+    w = h * ratio;
   }
+  canvas.width  = w;
+  canvas.height = h;
 
-  canvas.width = width;
-  canvas.height = height;
+  cw = bgW = w;
+  ch = bgH = h;
 
-  cw = width;
-  ch = height;
-
-  bgW = width;
-  bgH = height;
-  bgX = 0;
-  bgY = 0;
-
-  paddleX = (width - paddleWidth) / 2;
+  paddleX = (cw - paddleW) / 2;
 }
 
-function initBricks() {
-  cols = Math.floor(bgW / brickWidth);
-  brickOffsetLeft = bgX + (bgW - cols * brickWidth) / 2;
-  bricks = [];
-  for (let r = 0; r < brickRowCount; r++) {
-    bricks[r] = [];
-    for (let c = 0; c < cols; c++) {
-      const hue = Math.floor(Math.random() * 360);
-      bricks[r][c] = {
-        status: 1,
-        color: `hsl(${hue},70%,50%)`,
-        type: Math.random() < 0.1 ? 'heal' : 'normal'
-      };
-    }
-  }
-  falling = [];
-}
+function buildBricks() {
+  cols      = Math.floor(cw / brickW);
+  brickLeft = (cw - cols * brickW) / 2;
 
-window.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight') rightPressed = true;
-  if (e.key === 'ArrowLeft')  leftPressed  = true;
-});
-window.addEventListener('keyup', e => {
-  if (e.key === 'ArrowRight') rightPressed = false;
-  if (e.key === 'ArrowLeft')  leftPressed  = false;
-});
-canvas.addEventListener('mousemove', e => {
-  let mx = e.clientX - paddleWidth / 2;
-  mx = Math.max(bgX, Math.min(mx, bgX + bgW - paddleWidth));
-  paddleX = mx;
-});
+  bricks = Array.from({ length: brickRows }, () =>
+    Array.from({ length: cols }, () => ({
+      status: 1,
+      color : `hsl(${Math.random() * 360},70%,50%)`
+    }))
+  );
 
-function circleRect(cx, cy, r, rx, ry, rw, rh) {
-  const nx = Math.max(rx, Math.min(cx, rx + rw));
-  const ny = Math.max(ry, Math.min(cy, ry + rh));
-  const dx0 = cx - nx, dy0 = cy - ny;
-  return dx0*dx0 + dy0*dy0 <= r*r;
+  fall.length = 0;
 }
 
 function resetBall() {
-  x  = bgX + bgW / 2;
-  y  = bgY + bgH - paddleOffset - paddleHeight - ballRadius;
-  dx = 3;
-  dy = -3;
+  const cx  = paddleX + paddleW / 2;
+  const top = ch - paddleOff - dogH;
+  const gap = 0;  // 거의 붙임
+
+  x  = cx;
+  y  = top - gap - ballR;
+
+  const speed = 4;
+  const angle = Math.PI / 6 + Math.random() * Math.PI / 6; // 30°–60°
+  const dir   = Math.random() < 0.5 ? -1 : 1;
+
+  dx = Math.cos(angle) * speed * dir;
+  dy = -Math.sin(angle) * speed;
 }
 
-function drawBackground() {
-  const iw = bgImage.width;
-  const ih = bgImage.height;
-  const cw = canvas.width;
-  const ch = canvas.height;
-
-  const scale = Math.max(cw / iw, ch / ih);
-  const sw = iw * scale;
-  const sh = ih * scale;
-  const sx = (cw - sw) / 2;
-  const sy = (ch - sh) / 2;
-
-  // 흐리게 처리 추가
-  ctx.filter = 'blur(3px)';
-  ctx.drawImage(bgImage, sx, sy, sw, sh);
-  ctx.filter = 'none'; // 다른 그리기에 영향 주지 않도록 초기화
+function circRect(cx, cy, r, rx, ry, rw, rh) {
+  const nx = Math.max(rx, Math.min(cx, rx + rw));
+  const ny = Math.max(ry, Math.min(cy, ry + rh));
+  return (cx - nx) ** 2 + (cy - ny) ** 2 <= r * r;
 }
 
+function drawBG() {
+  if (!bgImg.complete || !bgImg.naturalWidth) return;
 
-function gameLoop() {
+  const s  = Math.max(cw / bgImg.width, ch / bgImg.height);
+  const w  = bgImg.width  * s;
+  const h  = bgImg.height * s;
+  const sx = (cw - w) / 2;
+  const sy = (ch - h) / 2;
+
+  ctx.filter = "blur(3px)";
+  ctx.drawImage(bgImg, sx, sy, w, h);
+  ctx.filter = "none";
+}
+
+function showLoad(cb) {
+  if (!trans) { cb(); return; }          // 전환 요소 없으면 바로 진행
+  trans.style.display = "flex";
+  setTimeout(() => {
+    trans.style.display = "none";
+    cb();
+  }, 2000);
+}
+
+function nextStage() {
+  stageClear = false;
+  bgImg.src  = stageBGs[curStage];
+  buildBricks();
+  resetBall();
+}
+
+/* ----------  초기화 함수 (누락된 부분)  ---------- */
+function init() {
+  resize();
+  buildBricks();
+  resetBall();
+  requestAnimationFrame(loop);
+}
+
+/* ----------  메인 루프  ---------- */
+function loop() {
   if (gameOver) {
-    setTimeout(() => { alert('GAME OVER'); location.reload(); }, 10);
+    alert("GAME OVER");
+    location.reload();
     return;
   }
 
   ctx.clearRect(0, 0, cw, ch);
-  ctx.globalAlpha = 0.4;
-  ctx.drawImage(bgImage, bgX, bgY, bgW, bgH);
-  ctx.globalAlpha = 1.0;
+  drawBG();
 
-  drawBackground();
-
-  for (let r = 0; r < brickRowCount; r++) {
+  /* bricks */
+  for (let r = 0; r < brickRows; r++) {
     for (let c = 0; c < cols; c++) {
       const b = bricks[r][c];
-      if (b.status === 1) {
-        const bx = brickOffsetLeft + c * brickWidth;
-        const by = bgY + brickOffsetTop + r * brickHeight;
-        ctx.fillStyle = b.color;
-        ctx.fillRect(bx, by, brickWidth, brickHeight);
-        ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
-        ctx.strokeRect(bx, by, brickWidth, brickHeight);
-      }
+      if (!b.status) continue;
+
+      const bx = brickLeft + c * brickW;
+      const by = brickTop  + r * brickH;
+
+      ctx.fillStyle   = b.color;
+      ctx.strokeStyle = "#333";
+      ctx.fillRect(bx, by, brickW, brickH);
+      ctx.strokeRect(bx, by, brickW, brickH);
     }
   }
 
-  if (falling.length === 0) {
-    const candidates = [];
-    for (let r = brickRowCount - 1; r >= 0; r--) {
+  /* falling blocks 생성 */
+  if (fall.length === 0) {
+    const cand = [];
+    for (let r = brickRows - 1; r >= 0; r--) {
       for (let c = 0; c < cols; c++) {
-        if (bricks[r][c].status === 1 &&
-            (r === brickRowCount - 1 || bricks[r+1][c].status === 0)) {
-          candidates.push({ r, c });
+        if (
+          bricks[r][c].status &&
+          (r === brickRows - 1 || !bricks[r + 1][c].status)
+        ) {
+          cand.push({ r, c });
         }
       }
-      if (candidates.length) break;
+      if (cand.length) break;
     }
-    if (candidates.length) {
-      const { r, c } = candidates[Math.floor(Math.random() * candidates.length)];
-      const fx = brickOffsetLeft + c * brickWidth;
-      const fy = bgY + brickOffsetTop + r * brickHeight;
-      const color = bricks[r][c].color;
+
+    if (cand.length) {
+      const { r, c } = cand[(Math.random() * cand.length) | 0];
+      const fx  = brickLeft + c * brickW;
+      const fy  = brickTop  + r * brickH;
+      const col = bricks[r][c].color;
+
       bricks[r][c].status = 0;
-      falling.push({ x: fx, y: fy, w: brickWidth, h: brickHeight, color });
+      fall.push({ x: fx, y: fy, w: brickW, h: brickH, color: col });
     }
   }
 
-  for (let i = falling.length - 1; i >= 0; i--) {
-    const f = falling[i];
-    if (circleRect(x + dx, y + dy, ballRadius, f.x, f.y, f.w, f.h)) {
-      const cx = f.x + f.w/2, cy = f.y + f.h/2;
-      const diffX = (x + dx) - cx, diffY = (y + dy) - cy;
-      if (Math.abs(diffX) > Math.abs(diffY)) dx = -dx;
-      else dy = -dy;
-      falling.splice(i, 1);
+  /* falling blocks 이동 & 충돌 */
+  for (let i = fall.length - 1; i >= 0; i--) {
+    const f = fall[i];
+
+    if (circRect(x + dx, y + dy, ballR, f.x, f.y, f.w, f.h)) {
+      Math.abs((x + dx) - (f.x + f.w / 2)) >
+      Math.abs((y + dy) - (f.y + f.h / 2))
+        ? (dx = -dx)
+        : (dy = -dy);
+      fall.splice(i, 1);
       continue;
     }
 
     f.y += fallSpeed;
 
-    if (f.y + f.h > bgY + bgH - paddleOffset) {
-      falling.splice(i, 1);
+    if (f.y + f.h > ch - paddleOff) {
+      fall.splice(i, 1);
       lives--;
       resetBall();
     } else {
-      ctx.fillStyle = f.color;
+      ctx.fillStyle   = f.color;
+      ctx.strokeStyle = "#333";
       ctx.fillRect(f.x, f.y, f.w, f.h);
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
       ctx.strokeRect(f.x, f.y, f.w, f.h);
     }
   }
 
-  if (ballW && ballH) {
-    ctx.drawImage(ballImage, x - ballW/2, y - ballH/2, ballW, ballH);
-  } else {
+  /* ball */
+  if (ballW) ctx.drawImage(ballImg, x - ballW / 2, y - ballH / 2, ballW, ballH);
+  else {
     ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
-    ctx.fillStyle = '#0095DD';
+    ctx.arc(x, y, ballR, 0, Math.PI * 2);
+    ctx.fillStyle = "#0095DD";
     ctx.fill();
-    ctx.closePath();
   }
 
-  const padY = bgY + bgH - paddleOffset - paddleHeight;
+  /* dog (paddle) */
+  const padY = ch - paddleOff - paddleH;
+  const dogX = paddleX + (paddleW - dogW) / 2;
+  const dogY = padY - 35;
+  ctx.drawImage(dogImg, dogX, dogY, dogW, dogH);
 
-  // 강아지 위치
-  const dogX = paddleX + (paddleWidth - dogW) / 2;
-  const dogY = padY + paddleHeight - 35;
-  ctx.drawImage(dogImage, dogX, dogY, dogW, dogH);
-
+  /* hearts */
   for (let i = 0; i < maxLives; i++) {
     ctx.globalAlpha = i < lives ? 1 : 0.3;
-    const hx = bgX + bgW - (i+1)*(heartSize+5) - 10;
-    const hy = bgY + 10;
-    ctx.drawImage(heartImage, hx, hy, heartSize, heartSize);
+    ctx.drawImage(
+      heartImg,
+      cw - (i + 1) * (heartS + 5) - 10,
+      10,
+      heartS,
+      heartS
+    );
   }
   ctx.globalAlpha = 1;
 
-  const nextX = x + dx, nextY = y + dy;
-  outer: for (let r = 0; r < brickRowCount; r++) {
+  /* collision with bricks */
+  const nx = x + dx;
+  const ny = y + dy;
+
+  outer: for (let r = 0; r < brickRows; r++) {
     for (let c = 0; c < cols; c++) {
       const b = bricks[r][c];
-      if (b.status !== 1) continue;
-      const bx = brickOffsetLeft + c * brickWidth;
-      const by = bgY + brickOffsetTop + r * brickHeight;
-      if (circleRect(nextX, nextY, ballRadius, bx, by, brickWidth, brickHeight)) {
-        const cx = bx + brickWidth/2, cy = by + brickHeight/2;
-        if (Math.abs(nextX - cx) > Math.abs(nextY - cy)) dx = -dx;
-        else dy = -dy;
+      if (!b.status) continue;
+
+      const bx = brickLeft + c * brickW;
+      const by = brickTop  + r * brickH;
+
+      if (circRect(nx, ny, ballR, bx, by, brickW, brickH)) {
+        Math.abs(nx - (bx + brickW / 2)) >
+        Math.abs(ny - (by + brickH / 2))
+          ? (dx = -dx)
+          : (dy = -dy);
         b.status = 0;
         break outer;
       }
     }
   }
 
-  if (x + dx > bgX + bgW - ballRadius || x + dx < bgX + ballRadius) dx = -dx;
-  if (y + dy < bgY + ballRadius) dy = -dy;
-  else if (circleRect(x + dx, y + dy, ballRadius, dogX, dogY, dogW, dogH)) {
-    dy = -dy;
-  } else if (y + dy > bgY + bgH - ballRadius - paddleOffset) {
+  /* walls & paddle */
+  if (nx < ballR || nx > cw - ballR) dx = -dx;
+  if (ny < ballR)                    dy = -dy;
+  else if (circRect(nx, ny, ballR, dogX, dogY, dogW, dogH)) dy = -dy;
+  else if (ny > ch - ballR - paddleOff) {
     lives--;
     resetBall();
   }
 
-  const remaining = bricks.flat().filter(b => b.status === 1).length;
-  if (remaining === 0 && falling.length === 0 && lives > 0) {
-    setTimeout(() => {
-      alert('YOU WIN!');
+  /* stage clear */
+  const bricksLeft = bricks.flat().some(b => b.status);
+  if (!bricksLeft && !fall.length && !stageClear) {
+    stageClear = true;
+
+    if (curStage < stageBGs.length - 1) {
+      showLoad(() => {
+        curStage++;
+        nextStage();
+      });
+    } else {
+      alert("YOU WIN!");
       location.reload();
-    }, 10);
-    return;
+      return;
+    }
   }
 
-  x += dx; y += dy;
-  if (rightPressed && paddleX < bgX + bgW - paddleWidth) paddleX += 7;
-  if (leftPressed  && paddleX > bgX) paddleX -= 7;
+  /* move */
+  x += dx;
+  y += dy;
+
+  if (right && paddleX < cw - paddleW) paddleX += 7;
+  if (left  && paddleX > 0          ) paddleX -= 7;
 
   if (lives <= 0) gameOver = true;
-
-  requestAnimationFrame(gameLoop);
+  requestAnimationFrame(loop);
 }
 
 function goToMenu() {
   window.location.href = "../memory_game.html";
 }
+/* ----------  이벤트 ---------- */
+window.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") right = true;
+  if (e.key === "ArrowLeft")  left  = true;
+});
+window.addEventListener("keyup", e => {
+  if (e.key === "ArrowRight") right = false;
+  if (e.key === "ArrowLeft")  left  = false;
+});
+canvas.addEventListener("mousemove", e => {
+  paddleX = Math.max(0, Math.min(e.clientX - paddleW / 2, cw - paddleW));
+});
+window.addEventListener("resize", resize);
+window.addEventListener("load", init);

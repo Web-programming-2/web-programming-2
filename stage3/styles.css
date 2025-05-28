@@ -42,4 +42,121 @@ canvas {
   background-color: #ffe4b5;
   transform: scale(1.08);              /* 확대감 조금 더 */
   box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.2);
+
+
+/* 애니메이션 키프레임 추가 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.7;
+  }
+}
+
+@keyframes fadenpc {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+#transition-image {
+  object-fit: cover;
+  opacity: 0;
+  position: absolute;
+  animation: fadeIn 2s forwards;
+}
+
+
+/* 전환 화면 */
+#transition-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: black;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+#transition-text {
+  position: relative;
+  z-index: 2;
+  font-size: 1.5rem;
+  color: white;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+
+
+#game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 690px;
+  height: 1200px;
+  position: relative;
+  margin: 0 auto;
+}
+
+
+#game-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 690px;
+  height: 1200px;
+  opacity: 0.45; /* 배경처럼 희미하게 */
+  z-index: 0;
+}
+
+
+#npc1{
+  position: absolute;
+  z-index: 100;
+  height: 670px;
+  width: 600px;
+  top:40%;
+  left: -3%;
+  
+   opacity: 0;
+  animation: fadenpc 2s forwards;
+}
+
+#npc1-text {
+  position: relative;
+  top: 30%;
+  left: 10%;
+  width: 100%;    
+  height: 100px;
+  padding: 100px 0 140px 0 ;
+  z-index: 2;
+  background-color: gray;
+  font-size: 3rem;
+  color: white;
+  text-align: center;
+  border-radius: 10px;
+  animation: fadeIn 3s forwards;
+}
+
+
+#npc-screen{
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: black;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+>>>>>>> master
 }
