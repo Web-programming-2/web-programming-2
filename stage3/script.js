@@ -318,6 +318,9 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
+function goToMenu() {
+  window.location.href = "../memory_game.html";
+}
 /* ----------  이벤트 ---------- */
 window.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") right = true;

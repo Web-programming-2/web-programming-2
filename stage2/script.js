@@ -193,6 +193,9 @@ function gameLoop(){
   requestAnimationFrame(gameLoop);
 }
 
+function goToMenu() {
+  window.location.href = "../memory_game.html";
+}
 /* ---------- input ---------- */
 window.addEventListener('keydown',e=>{
   if(e.key==='ArrowRight') rightPressed=true;
@@ -206,3 +209,4 @@ window.addEventListener('keyup',e=>{
 /* ---------- start ---------- */
 window.addEventListener('resize',resizeCanvas);
 window.addEventListener('load', ()=>{ resizeCanvas(); initBricks(); resetBall(); startTime=Date.now(); requestAnimationFrame(gameLoop); });
+
