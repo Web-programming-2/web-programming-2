@@ -21,7 +21,6 @@ canvas {
   transform: translate(-50%, -50%);
 }
 
-<<<<<<< HEAD
 #back-to-menu {
   position: fixed;
   top: 20px;
@@ -159,5 +158,21 @@ canvas {
   top: 0;
   left: 0;
   z-index: 10;
->>>>>>> master
 }
+#back-to-menu {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 14px 28px;                 /* 더 넓고 높게 */
+  font-size: 22px;                    /* 글자 크게 */
+  background-color: #fff8dc;
+  color: #4b3832;
+  border: 3px solid #f5cda7;          /* 테두리도 살짝 굵게 */
+  border-radius: 14px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15); /* 그림자도 조금 강화 */
+  cursor: pointer;
+  z-index: 9999;
+  font-family: 'Segoe UI', 'Pretendard', sans-serif;
+  transition: all 0.2s ease-in-out;
+}
+
