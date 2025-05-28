@@ -245,6 +245,7 @@ function gameLoop() {
     stageCleared = true;
     setTimeout(() => {
       nextStage();
+      requestAnimationFrame(gameLoop);
     }, 500);
     return;
   }
@@ -257,4 +258,4 @@ function gameLoop() {
   if (lives <= 0) gameOver = true;
 
   requestAnimationFrame(gameLoop);
-}
+} 
