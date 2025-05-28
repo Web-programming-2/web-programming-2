@@ -7,6 +7,17 @@
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
+    <!-- 스테이지 전환(로딩) 화면 -->
+  <div id="transition-screen" class="container" style="display: none;">
+    <img src="봄1_로딩창.jpg" alt="Intro Image" id="transition-image">
+    <p id="transition-text">봄에는 역시 벚꽃! 무작정 반포 한강 공원으로 가보려는데 도착한 뚝섬 유원지에서 피크닉을 잠시 즐겨보자</p>
+  </div>
+
+  <div id="game-container" style="display: none;">
+    <img src="봄1.jpg" alt="Intro Image" id="game-image">
+    <canvas id="canvas-game" width="690" height="1200"></canvas>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
