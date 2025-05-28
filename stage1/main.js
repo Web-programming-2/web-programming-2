@@ -1,11 +1,11 @@
 /* ------------------------------------------------------------------
- (스테이지 1 자동 실행 - 메뉴/선택 생략 + 전기 벽돌 포함)
+ (스테이지 1 자동 실행 - 메뉴/선택 생략 + 전기 벽돌 확률 증가 + 고정 해상도 적용)
 ------------------------------------------------------------------ */
 
 const canvas = document.getElementById("gameCanvas");
 const ctx    = canvas.getContext("2d");
-canvas.width = 800;
-canvas.height = 600;
+canvas.width = 690;
+canvas.height = 1200;
 
 const bgm = document.getElementById("bgm");
 bgm.volume = 0.6;
@@ -67,11 +67,6 @@ function startGame(stageIdx) {
 }
 
 function resizeCanvas() {
-  const imgRatio=(bgImg.width||3)/(bgImg.height||4);
-  const w=innerWidth, h=innerHeight, r=w/h;
-  if(r>imgRatio){ canvas.height=h; canvas.width=h*imgRatio; }
-  else{ canvas.width=w; canvas.height=w/imgRatio; }
-
   PADDLE_W = canvas.width  * L.PADDLE_W;
   PADDLE_H = canvas.height * L.PADDLE_H;
   BALL_R   = canvas.width  * L.BALL_R;
@@ -88,12 +83,11 @@ function resetBricks() {
   for(let r=0;r<5;r++){
     bricks[r] = [];
     for(let c=0;c<8;c++) {
-      const isElectric = Math.random() < 0.25; // 전기 벽돌 확률을 기존 0.1 → 0.25로 증가
+      const isElectric = Math.random() < 0.4;
       bricks[r][c] = { hit:false, x:0, y:0, electric: isElectric };
     }
   }
 }
-
 
 function destroySurroundingBricks(r, c) {
   for (let dr = -1; dr <= 1; dr++) {
