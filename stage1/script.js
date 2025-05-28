@@ -1,5 +1,16 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const transitionScreen = document.getElementById('transition-screen');
+
+
+/* 전환용 함수 추가 */
+function showStageLoading(cb, delay = 2000) {   // delay: 로딩 화면 표시 시간(ms)
+  transitionScreen.style.display = 'flex';
+  setTimeout(() => {
+    transitionScreen.style.display = 'none';
+    cb();                                       // 로딩 끝나면 콜백 실행
+  }, delay);
+}
 
 const bgImages = ['background1.jpg', 'background2.jpg'].map((src) => {
   const img = new Image();
@@ -243,12 +254,23 @@ function gameLoop() {
   const remaining = bricks.flat().filter(b => b.status === 1).length;
   if (remaining === 0 && lives > 0 && !stageCleared) {
     stageCleared = true;
-    setTimeout(() => {
-      nextStage();
-      requestAnimationFrame(gameLoop);
-    }, 500);
-    return;
+
+      // 다음 스테이지가 있으면 로딩 화면 → 다음 스테이지
+    if (currentStage < bgImages.length - 1) {
+      showStageLoading(() => {
+        nextStage();
+        stageCleared = false;
+        requestAnimationFrame(gameLoop);
+      }, 2000);       // 로딩 화면 2초
+    }
+    // 마지막 스테이지였다면 로딩 화면 없이 바로 nextStage()
+    else {
+      nextStage();    // 여기서 alert 후 location.reload()
+    }
+
+    return;           // 현재 루프 종료
   }
+
 
   x += dx;
   y += dy;
