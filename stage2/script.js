@@ -23,7 +23,7 @@ const heartSize     = 70;
 
 // 시간 제한
 let startTime = 0;
-const timeLimit = 20 * 1000;
+const timeLimit = 30 * 1000;
 
 // 강아지 크기
 let dogW = 0, dogH = 0;
@@ -132,11 +132,12 @@ function gameLoop() {
     setTimeout(() => { alert('GAME OVER'); location.reload(); }, 10);
     return;
   }
+  
   ctx.clearRect(0, 0, cw, ch);
-// 배경만 투명하게
-ctx.globalAlpha = 0.4;
-ctx.drawImage(bgImage, bgX, bgY, bgW, bgH);
-ctx.globalAlpha = 1.0;
+  // 배경만 투명하게
+  ctx.globalAlpha = 0.4;
+  ctx.drawImage(bgImage, bgX, bgY, bgW, bgH);
+  ctx.globalAlpha = 1.0;
 
 
   // 벽돌
@@ -182,8 +183,8 @@ ctx.globalAlpha = 1.0;
 
   // 남은 시간 시계 표시
   const remainingTime = Math.max(0, Math.ceil((timeLimit - elapsed) / 1000));
-  ctx.font = "bold 32px Arial";
-  ctx.fillStyle = "white";
+  ctx.font = "bold 32px Comic Sans MS";
+  ctx.fillStyle = "blue";
   ctx.fillText(`Time: ${remainingTime}s`, bgX + 20, bgY + 45);
 
   // 벽돌 충돌
