@@ -1,285 +1,183 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx    = canvas.getContext("2d");
-const trans  = document.getElementById("transition-screen");
 
-/* stage data */
-const stageBGs = ["background1.jpg", "background2.jpg"];
-let   curStage = 0, stageCleared = false;
-const bgImg    = new Image();
-bgImg.src      = stageBGs[curStage];
+/* ---------- canvas & transition ---------- */
+const canvas            = document.getElementById("gameCanvas");
+const ctx               = canvas.getContext("2d");
+const transitionScreen  = document.getElementById("transition-screen");
 
-/* sprites */
-const ballImg  = new Image(); ballImg.src  = "basketball.png";
-const dogImg   = new Image(); dogImg.src   = "dog.png";
-const heartImg = new Image(); heartImg.src = "heart.png";
+/* ---------- stage data ---------- */
+const stageBGs   = ["background1.jpg", "background2.jpg"];
+let   currentStage = 0;
+let   stageCleared = false;
+const bgImage     = new Image();
+bgImage.src       = stageBGs[currentStage];
 
-/* dimensions / state */
-let cw, ch, bgW, bgH;
-let ballW = 0, ballH = 0, ballR = 12, ballScale = 0.2;
-let dogW  = 0, dogH  = 0;
+/* ---------- sprites ---------- */
+const heartImage  = new Image(); heartImage.src = "heart.png";
+const dogImage    = new Image(); dogImage.src   = "dog.png";
+const ballImage   = new Image(); ballImage.src  = "basketball.png";
 
-let x, y, dx = 3, dy = -3;
-const paddleW = 75, paddleH = 10, paddleOff = 60;
-let   paddleX;
+/* ---------- constants ---------- */
+const ballScale     = 0.2;
+const brickWidth    = 60;
+const brickHeight   = 30;
+const brickRowCount = 1;
+const brickOffsetTop= 100;
+const paddleWidth   = 100;
+const paddleHeight  = 0;
+const paddleOffset  = 60;
+const fallSpeed     = 1;
+const maxLives      = 3;
+const heartSize     = 70;
+const timeLimit     = 30_000;          // 30 초
 
-const brickW = 75, brickH = 20, brickRows = 3, brickTop = 100;
-let   cols, brickLeft, bricks = [];
+/* ---------- run-time state ---------- */
+let ballW=0, ballH=0, ballR=12;
+let dogW=0,  dogH=0;
 
-const fall       = [];
-const fallSpeed  = 1;
-let   lives      = 3;
-const maxLives   = 3;
-const heartSize  = 50;
+let cw, ch, bgW, bgH, bgX=0, bgY=0;
+let x, y, dx=6, dy=-6;
+let paddleX;
+let rightPressed=false, leftPressed=false;
+let bricks=[], cols, brickOffsetLeft;
+let falling=[];
+let lives=maxLives, gameOver=false;
+let startTime=0;
 
-let right = false, left = false, gameOver = false;
-
-/* sprite sizing */
-ballImg.onload = () => {
-  ballW = ballImg.naturalWidth  * ballScale;
-  ballH = ballImg.naturalHeight * ballScale;
+/* ---------- sprite sizing after load ---------- */
+ballImage.onload = () => {
+  ballW = ballImage.naturalWidth  * ballScale;
+  ballH = ballImage.naturalHeight * ballScale;
   ballR = ballW / 2;
 };
-dogImg.onload  = () => {
-  dogW = paddleW * 1.2;
-  dogH = dogImg.naturalHeight * (dogW / dogImg.naturalWidth);
+dogImage.onload = () => {
+  dogW = paddleWidth * 1.2;
+  dogH = dogImage.naturalHeight * (dogW / dogImage.naturalWidth);
 };
 
-/* helpers */
-function resize() {
-  const ratio = 9 / 16;
-  const w0    = window.innerWidth;
-  const h0    = window.innerHeight;
-
-  let w = w0;
-  let h = w / ratio;
-
-  if (h > h0) {
-    h = h0;
-    w = h * ratio;
-  }
-  canvas.width  = w;
-  canvas.height = h;
-
-  cw = bgW = w;
-  ch = bgH = h;
-
-  paddleX = (cw - paddleW) / 2;
+/* ---------- helpers ---------- */
+function resizeCanvas(){
+  canvas.width  = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+  cw = bgW = canvas.width;
+  ch = bgH = canvas.height;
+  paddleX = (bgW - paddleWidth) / 2;
 }
-
-function buildBricks() {
-  cols       = Math.floor(cw / brickW);
-  brickLeft  = (cw - cols * brickW) / 2;
-  bricks     = Array.from({ length: brickRows }, () =>
-    Array.from({ length: cols }, () => ({
-      status : 1,
-      color  : `hsl(${Math.random() * 360},70%,50%)`
+function circleRect(cx,cy,r,rx,ry,rw,rh){
+  const nx=Math.max(rx,Math.min(cx,rx+rw)),
+        ny=Math.max(ry,Math.min(cy,ry+rh));
+  return (cx-nx)**2 + (cy-ny)**2 <= r*r;
+}
+function initBricks(){
+  cols = Math.floor(bgW / brickWidth);
+  brickOffsetLeft = (bgW - cols*brickWidth) / 2;
+  bricks = Array.from({length: brickRowCount}, () =>
+    Array.from({length: cols}, () => ({
+      status:1,
+      color:`hsl(${Math.random()*360},70%,50%)`
     }))
   );
-  fall.length = 0;
+  falling.length = 0;
 }
-
-function resetBall() {
-  const cx   = paddleX + paddleW / 2;
-  const gap  = 0;
-  const topY = ch - paddleOff - dogH;
-
-  x = cx;
-  y = topY - gap - ballR;
-
-  const speed = 4;
-  const ang   = Math.PI / 6 + Math.random() * Math.PI / 6; // 30°–60°
-  const dir   = Math.random() < 0.5 ? -1 : 1;
-
-  dx = Math.cos(ang) * speed * dir;
-  dy = -Math.sin(ang) * speed;
+function resetBall(){
+  x  = bgW / 2;
+  y  = bgH - paddleOffset - paddleHeight - ballR;
+  dx = 6;                     // 스테이지마다 동일 속도
+  dy = -6;
 }
-
-function circRect(cx, cy, r, rx, ry, rw, rh) {
-  const nx = Math.max(rx, Math.min(cx, rx + rw));
-  const ny = Math.max(ry, Math.min(cy, ry + rh));
-  return (cx - nx) ** 2 + (cy - ny) ** 2 <= r * r;
-}
-
-function drawBG() {
-  if (!bgImg.complete || !bgImg.naturalWidth) return;
-
-  const s  = Math.max(cw / bgImg.width, ch / bgImg.height);
-  const w  = bgImg.width  * s;
-  const h  = bgImg.height * s;
-  const sx = (cw - w) / 2;
-  const sy = (ch - h) / 2;
-
-  ctx.filter = "blur(3px)";
-  ctx.drawImage(bgImg, sx, sy, w, h);
-  ctx.filter = "none";
-}
-
-function showLoad(cb) {
-  trans.style.display = "flex";
-  setTimeout(() => {
-    trans.style.display = "none";
-    cb();
-  }, 2000);
-}
-
-function nextStage() {
+function nextStage(){
   stageCleared = false;
-  bgImg.src    = stageBGs[curStage];
-  buildBricks();
+  bgImage.src  = stageBGs[currentStage];
+  initBricks();
   resetBall();
-  requestAnimationFrame(loop);
+  lives      = maxLives;
+  startTime  = Date.now();
+  requestAnimationFrame(gameLoop);
 }
 
-/* main loop */
-function loop() {
-  if (gameOver) {
-    alert("GAME OVER");
-    location.reload();
-    return;
-  }
+/* ---------- game loop ---------- */
+function gameLoop(){
+  const elapsed = Date.now() - startTime;
+  if(elapsed > timeLimit){ alert("TIME OVER"); location.reload(); return; }
+  if(gameOver)            { alert("GAME OVER"); location.reload(); return; }
 
-  ctx.clearRect(0, 0, cw, ch);
-  drawBG();
+  ctx.clearRect(0,0,cw,ch);
+  ctx.globalAlpha = .4;
+  ctx.drawImage(bgImage,bgX,bgY,bgW,bgH);
+  ctx.globalAlpha = 1;
 
-  /* draw bricks */
-  for (let r = 0; r < brickRows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const b = bricks[r][c];
-      if (!b.status) continue;
-      const bx = brickLeft + c * brickW;
-      const by = brickTop  + r * brickH;
-
-      ctx.fillStyle = b.color;
-      ctx.fillRect(bx, by, brickW, brickH);
-      ctx.strokeStyle = "#333";
-      ctx.strokeRect(bx, by, brickW, brickH);
+  /* bricks */
+  for(let r=0;r<brickRowCount;r++){
+    for(let c=0;c<cols;c++){
+      const b=bricks[r][c]; if(!b.status) continue;
+      const bx=brickOffsetLeft+c*brickWidth,
+            by=brickOffsetTop +r*brickHeight;
+      ctx.fillStyle=b.color;
+      ctx.fillRect(bx,by,brickWidth,brickHeight);
+      ctx.strokeStyle="#333"; ctx.lineWidth=2;
+      ctx.strokeRect(bx,by,brickWidth,brickHeight);
     }
   }
 
-  /* spawn falling blocks */
-  if (fall.length === 0) {
-    const cand = [];
-    for (let r = brickRows - 1; r >= 0; r--) {
-      for (let c = 0; c < cols; c++) {
-        if (
-          bricks[r][c].status &&
-          (r === brickRows - 1 || !bricks[r + 1][c].status)
-        ) {
-          cand.push({ r, c });
-        }
-      }
-      if (cand.length) break;
-    }
+  /* ball */
+  ballW
+    ? ctx.drawImage(ballImage,x-ballW/2,y-ballH/2,ballW,ballH)
+    : (ctx.beginPath(),ctx.arc(x,y,ballR,0,Math.PI*2),
+       ctx.fillStyle="#0095DD",ctx.fill());
 
-    if (cand.length) {
-      const { r, c } = cand[(Math.random() * cand.length) | 0];
-      const fx   = brickLeft + c * brickW;
-      const fy   = brickTop  + r * brickH;
-      const col  = bricks[r][c].color;
-
-      bricks[r][c].status = 0;
-      fall.push({ x: fx, y: fy, w: brickW, h: brickH, color: col });
-    }
-  }
-
-  /* update falling blocks */
-  for (let i = fall.length - 1; i >= 0; i--) {
-    const f = fall[i];
-
-    if (circRect(x + dx, y + dy, ballR, f.x, f.y, f.w, f.h)) {
-      Math.abs((x + dx) - (f.x + f.w / 2)) >
-      Math.abs((y + dy) - (f.y + f.h / 2))
-        ? (dx = -dx)
-        : (dy = -dy);
-      fall.splice(i, 1);
-      continue;
-    }
-
-    f.y += fallSpeed;
-
-    if (f.y + f.h > ch - paddleOff) {
-      fall.splice(i, 1);
-      lives--;
-      resetBall();
-    } else {
-      ctx.fillStyle = f.color;
-      ctx.fillRect(f.x, f.y, f.w, f.h);
-      ctx.strokeStyle = "#333";
-      ctx.strokeRect(f.x, f.y, f.w, f.h);
-    }
-  }
-
-  /* draw ball */
-  if (ballW) ctx.drawImage(ballImg, x - ballW / 2, y - ballH / 2, ballW, ballH);
-  else {
-    ctx.beginPath();
-    ctx.arc(x, y, ballR, 0, Math.PI * 2);
-    ctx.fillStyle = "#0095DD";
-    ctx.fill();
-  }
-
-  /* draw dog */
-  const padY = ch - paddleOff - paddleH;
-  const dogX = paddleX + (paddleW - dogW) / 2;
+  /* dog paddle */
+  const padY = bgH - paddleOffset - paddleHeight;
+  const dogX = paddleX + (paddleWidth-dogW)/2;
   const dogY = padY - 35;
-  ctx.drawImage(dogImg, dogX, dogY, dogW, dogH);
+  ctx.drawImage(dogImage,dogX,dogY,dogW,dogH);
 
-  /* draw hearts */
-  for (let i = 0; i < maxLives; i++) {
-    ctx.globalAlpha = i < lives ? 1 : 0.3;
-    ctx.drawImage(
-      heartImg,
-      cw - (i + 1) * (heartSize + 5) - 10,
-      10,
-      heartSize,
-      heartSize
-    );
+  /* hearts */
+  for(let i=0;i<maxLives;i++){
+    ctx.globalAlpha = i < lives ? 1 : .3;
+    const hx = bgW - (i+1)*(heartSize+5) - 10;
+    ctx.drawImage(heartImage,hx,10,heartSize,heartSize);
   }
   ctx.globalAlpha = 1;
 
-  /* collision with bricks */
-  const nx = x + dx;
-  const ny = y + dy;
+  /* timer text */
+  const remain = Math.max(0,Math.ceil((timeLimit-elapsed)/1000));
+  ctx.font="bold 28px sans-serif";
+  ctx.fillStyle="yellow";
+  ctx.fillText(`TIME: ${remain}s`, 20, 40);
 
-  outer: for (let r = 0; r < brickRows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const b = bricks[r][c];
-      if (!b.status) continue;
-
-      const bx = brickLeft + c * brickW;
-      const by = brickTop  + r * brickH;
-
-      if (circRect(nx, ny, ballR, bx, by, brickW, brickH)) {
-        Math.abs(nx - (bx + brickW / 2)) >
-        Math.abs(ny - (by + brickH / 2))
-          ? (dx = -dx)
-          : (dy = -dy);
-        b.status = 0;
+  /* collisions with bricks */
+  const nx=x+dx, ny=y+dy;
+  outer: for(let r=0;r<brickRowCount;r++){
+    for(let c=0;c<cols;c++){
+      const b=bricks[r][c]; if(!b.status) continue;
+      const bx=brickOffsetLeft+c*brickWidth,
+            by=brickOffsetTop +r*brickHeight;
+      if(circleRect(nx,ny,ballR,bx,by,brickWidth,brickHeight)){
+        Math.abs(nx-(bx+brickWidth/2))>Math.abs(ny-(by+brickHeight/2))?dx=-dx:dy=-dy;
+        b.status=0;
         break outer;
       }
     }
   }
 
-  /* wall / paddle collisions */
-  if (nx < ballR || nx > cw - ballR) dx = -dx;
-  if (ny < ballR) dy = -dy;
-  else if (circRect(nx, ny, ballR, dogX, dogY, dogW, dogH)) dy = -dy;
-  else if (ny > ch - ballR - paddleOff) {
-    lives--;
-    resetBall();
-  }
+  /* walls & paddle */
+  if(nx<ballR||nx>bgW-ballR) dx=-dx;
+  if(ny<ballR)              dy=-dy;
+  else if(circleRect(nx,ny,ballR,paddleX,padY,paddleWidth,paddleHeight)) dy=-dy;
+  else if(ny>bgH-ballR-paddleOffset){ lives--; resetBall(); }
 
   /* stage clear */
-  const anyBrick = bricks.flat().some(b => b.status);
-  if (!anyBrick && !fall.length && !stageCleared) {
+  const bricksRemain = bricks.flat().some(b=>b.status);
+  if(!bricksRemain && !stageCleared){
     stageCleared = true;
-
-    if (curStage < stageBGs.length - 1) {
-      showLoad(() => {
-        curStage++;
+    if(currentStage < stageBGs.length-1){
+      transitionScreen.style.display='flex';
+      setTimeout(()=>{
+        transitionScreen.style.display='none';
+        currentStage++;
         nextStage();
-      });
-    } else {
+      },2000);
+      return;                // 로딩 동안 루프 일시 중단
+    }else{
       alert("YOU WIN!");
       location.reload();
       return;
@@ -287,27 +185,24 @@ function loop() {
   }
 
   /* move */
-  x += dx;
-  y += dy;
+  x+=dx; y+=dy;
+  if(rightPressed && paddleX<bgW-paddleWidth) paddleX+=7;
+  if(leftPressed  && paddleX>0)               paddleX-=7;
+  if(lives<=0) gameOver=true;
 
-  if (right && paddleX < cw - paddleW) paddleX += 7;
-  if (left  && paddleX > 0         ) paddleX -= 7;
-
-  if (lives <= 0) gameOver = true;
-  requestAnimationFrame(loop);
+  requestAnimationFrame(gameLoop);
 }
 
-/* events */
-window.addEventListener("keydown", e => {
-  if (e.key === "ArrowRight") right = true;
-  if (e.key === "ArrowLeft")  left  = true;
+/* ---------- input ---------- */
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight') rightPressed=true;
+  if(e.key==='ArrowLeft')  leftPressed=true;
 });
-window.addEventListener("keyup", e => {
-  if (e.key === "ArrowRight") right = false;
-  if (e.key === "ArrowLeft")  left  = false;
+window.addEventListener('keyup',e=>{
+  if(e.key==='ArrowRight') rightPressed=false;
+  if(e.key==='ArrowLeft')  leftPressed=false;
 });
-canvas.addEventListener("mousemove", e => {
-  paddleX = Math.max(0, Math.min(e.clientX - paddleW / 2, cw - paddleW));
-});
-window.addEventListener("resize", resize);
-window.addEventListener("load", init);
+
+/* ---------- start ---------- */
+window.addEventListener('resize',resizeCanvas);
+window.addEventListener('load', ()=>{ resizeCanvas(); initBricks(); resetBall(); startTime=Date.now(); requestAnimationFrame(gameLoop); });
