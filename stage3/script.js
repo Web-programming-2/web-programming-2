@@ -11,7 +11,10 @@ const bgImg      = new Image();
 bgImg.src        = stageBGs[curStage];
 
 /* ----------  스프라이트  ---------- */
-const ballImg  = new Image(); ballImg.src  = "basketball.png";
+
+const savedSkin  = localStorage.getItem('ballSkin') || 'basketball.png';
+
+const ballImg  = new Image(); ballImg.src  = savedSkin;
 const dogImg   = new Image(); dogImg.src   = "dog.png";
 const heartImg = new Image(); heartImg.src = "heart.png";
 
