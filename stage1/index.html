@@ -1,35 +1,12 @@
 <!DOCTYPE html>
-<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Brick Breaker – Big Hearts</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Breakout Game</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <button id="muteBtn">🔊</button>
   <canvas id="gameCanvas"></canvas>
-
-  <!-- 🔊 배경 음악 -->
-  <audio id="bgm" src="assets/bgm.mp3" loop preload="auto"></audio>
-
-  <!-- 🎮 게임 메인 로직 -->
-  <script src="main.js" defer></script>
-
-  <!-- ✅ 페이지 로딩 후 자동으로 스테이지 1 시작 -->
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      // main.js 로드 후 startGame(0) 실행 (스테이지 1)
-      const tryStart = () => {
-        if (typeof startGame === "function") {
-          startGame(0);
-        } else {
-          // main.js가 아직 로드되지 않은 경우 재시도
-          setTimeout(tryStart, 100);
-        }
-      };
-      tryStart();
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
