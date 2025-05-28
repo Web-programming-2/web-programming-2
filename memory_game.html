@@ -10,9 +10,10 @@
   <!-- 1. 메뉴 화면 -->
   <div class="container" id="menu-container">
     <h1 class="title">설기의 <br>추억여행!</h1>
-    <div class="menu">
-      <button class="menu-button" id="start-button">게임 시작</button>
-      <button class="menu-button">게임 종료</button>
+  <div class="menu">
+  <button class="menu-button" id="start-button">🎮 게임 시작</button>
+  <button class="menu-button" id="shop-button">🛍 상점</button>
+  <button class="menu-button" id="settings-button">⚙️ 설정</button>
     </div>
   </div>
 
@@ -27,6 +28,7 @@
     <h2>어디로 떠나볼까?</h2>
     <button class="menu-button" onclick="location.href='stage1/index.html'">🌸 Stage 1: 봄날의 기억</button>
     <button class="menu-button" onclick="location.href='stage2/koongmai.html'">🐾 Stage 2: 꿍마이의 모험</button>
+    <button class="menu-button" onclick="location.href='stage3/index.html'">🐾 Stage 3: 꿍마이의 모험</button>
   </div>
 
   <div id="game-container" style="display: none;">
@@ -34,19 +36,31 @@
     <canvas id="canvas-game" width="690" height="1200"></canvas>
   </div>
 
-  <script>
-    document.getElementById("start-button").addEventListener("click", function () {
-      document.getElementById("menu-container").style.display = "none";
-      document.getElementById("transition-screen").style.display = "block";
+  <!-- 설정 화면 -->
+<div id="settings-screen" class="container" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+  <h2>⚙️ 게임 설정</h2>
 
-      // 2.5초 후 스테이지 선택 화면으로 자동 전환
-      setTimeout(() => {
-        document.getElementById("transition-screen").style.display = "none";
-        document.getElementById("stage-select").style.display = "block";
-      }, 2500);
-    });
-  </script>
+  <!-- 볼륨 슬라이더 -->
+  <label for="volume-slider">🔊 볼륨</label>
+  <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+  <span id="volume-value">50%</span>
 
-  <script src="memory_game.js"></script>
+  <!-- BGM 토글 -->
+  <label>
+    <input type="checkbox" id="bgm-toggle" checked>
+    🎵 배경음악 켜기
+  </label>
+
+  <!-- 공 모양 선택 -->
+  <label for="ball-select">🏀 공 모양 선택</label>
+  <select id="ball-select">
+    <option value="basketball.png">농구공</option>
+    <option value="baseball.png">야구공</option>
+  </select>
+
+  <!-- 뒤로가기 버튼 -->
+  <button class="menu-button" id="settings-back-button">⬅️ 돌아가기</button>
+</div>
+<script src="memory_game.js"></script>
 </body>
 </html>
