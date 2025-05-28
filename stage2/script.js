@@ -229,8 +229,11 @@ function gameLoop() {
   x += dx; y += dy;
   if (rightPressed && paddleX < bgX + bgW - paddleWidth) paddleX += 7;
   if (leftPressed  && paddleX > bgX) paddleX -= 7;
-
   if (lives <= 0) gameOver = true;
 
   requestAnimationFrame(gameLoop);
+}
+
+function goToMenu() {
+  window.location.href = "../memory_game.html";
 }

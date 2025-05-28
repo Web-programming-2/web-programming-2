@@ -259,3 +259,6 @@ function gameLoop() {
 
   requestAnimationFrame(gameLoop);
 } 
+  function goToMenu() {
+    window.location.href = "../memory_game.html";
+  }
