@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------
- (스테이지 1 자동 실행 - 메뉴/선택 생략)
+ (스테이지 1 자동 실행 - 메뉴/선택 생략 + 전기 벽돌 포함)
 ------------------------------------------------------------------ */
 
 const canvas = document.getElementById("gameCanvas");
@@ -87,31 +87,28 @@ function resetBricks() {
   bricks = [];
   for(let r=0;r<5;r++){
     bricks[r] = [];
-    for(let c=0;c<8;c++) bricks[r][c] = { hit:false, x:0, y:0 };
+    for(let c=0;c<8;c++) {
+      const isElectric = Math.random() < 0.25; // 전기 벽돌 확률을 기존 0.1 → 0.25로 증가
+      bricks[r][c] = { hit:false, x:0, y:0, electric: isElectric };
+    }
   }
 }
 
-addEventListener("keydown", e => {
-  if(e.key === "ArrowRight" || e.key === "Right") rightPressed = true;
-  else if(e.key === "ArrowLeft" || e.key === "Left") leftPressed = true;
-});
-addEventListener("keyup", e => {
-  if(e.key === "ArrowRight" || e.key === "Right") rightPressed = false;
-  else if(e.key === "ArrowLeft" || e.key === "Left") leftPressed = false;
-});
 
-canvas.addEventListener('mousemove', e => {
-  const rect = canvas.getBoundingClientRect();
-  paddleX = e.clientX - rect.left - PADDLE_W / 2;
-  if (paddleX < 0) paddleX = 0;
-  if (paddleX + PADDLE_W > canvas.width) paddleX = canvas.width - PADDLE_W;
-});
-
-function drawBackground() {
-  if(!bgImg.complete) return;
-  const iw=bgImg.width, ih=bgImg.height, cw=canvas.width, ch=canvas.height;
-  const s=Math.min(cw/iw, ch/ih);
-  ctx.drawImage(bgImg,(cw-iw*s)/2,(ch-ih*s)/2, iw*s, ih*s);
+function destroySurroundingBricks(r, c) {
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < 5 && nc >= 0 && nc < 8) {
+        const nb = bricks[nr][nc];
+        if (!nb.hit) {
+          nb.hit = true;
+          score += 100;
+          createSparkle(nb.x + BRICK_W / 2, nb.y + BRICK_H / 2);
+        }
+      }
+    }
+  }
 }
 
 function drawBricks() {
@@ -126,8 +123,13 @@ function drawBricks() {
       b.x = bx; b.y = by;
       ctx.fillStyle = "rgba(0,0,0,0.3)";
       ctx.fillRect(bx+2, by+2, BRICK_W, BRICK_H);
-      ctx.fillStyle = "#ff4081";
+      ctx.fillStyle = b.electric ? "#00e5ff" : "#ff4081";
       ctx.fillRect(bx, by, BRICK_W, BRICK_H);
+      if (b.electric) {
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(bx + 2, by + 2, BRICK_W - 4, BRICK_H - 4);
+      }
     }
   }
 }
@@ -207,9 +209,13 @@ function collision() {
       if(ballX > b.x && ballX < b.x + BRICK_W &&
          ballY > b.y && ballY < b.y + BRICK_H){
         ballDY = -ballDY;
-        b.hit = true;
-        score += 100;
-        createSparkle(ballX, ballY);
+        if (b.electric) {
+          destroySurroundingBricks(r, c);
+        } else {
+          b.hit = true;
+          score += 100;
+          createSparkle(ballX, ballY);
+        }
         if (stageIndex + 1 < STAGES.length && score - scoreStageStart >= STAGES[stageIndex].threshold) {
           stageIndex++;
           startGame(stageIndex);
@@ -237,7 +243,7 @@ function gameLoop() {
     else {
       if(--lives === 0) {
         alert("GAME OVER");
-        startGame(0); // 게임 오버 후 다시 시작
+        startGame(0);
         return;
       }
       ballX = canvas.width / 2;
@@ -255,7 +261,29 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// 페이지 로딩되면 바로 스테이지 1 실행
+addEventListener("keydown", e => {
+  if(e.key === "ArrowRight" || e.key === "Right") rightPressed = true;
+  else if(e.key === "ArrowLeft" || e.key === "Left") leftPressed = true;
+});
+addEventListener("keyup", e => {
+  if(e.key === "ArrowRight" || e.key === "Right") rightPressed = false;
+  else if(e.key === "ArrowLeft" || e.key === "Left") leftPressed = false;
+});
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  paddleX = e.clientX - rect.left - PADDLE_W / 2;
+  if (paddleX < 0) paddleX = 0;
+  if (paddleX + PADDLE_W > canvas.width) paddleX = canvas.width - PADDLE_W;
+});
+
+function drawBackground() {
+  if(!bgImg.complete) return;
+  const iw=bgImg.width, ih=bgImg.height, cw=canvas.width, ch=canvas.height;
+  const s=Math.min(cw/iw, ch/ih);
+  ctx.drawImage(bgImg,(cw-iw*s)/2,(ch-ih*s)/2, iw*s, ih*s);
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   startGame(0);
 });
