@@ -13,7 +13,7 @@ const ballScale     = 0.2;
 const brickWidth    = 75;
 const brickHeight   = 20;
 const brickRowCount = 3;
-const brickOffsetTop= 50;
+const brickOffsetTop= 100;
 const paddleWidth   = 75;
 const paddleHeight  = 10;
 const paddleOffset  = 60;
@@ -33,7 +33,6 @@ ballImage.onload = () => {
   ballH = ballImage.naturalHeight * ballScale;
   ballRadius = ballW / 2;
 };
-
 let cw, ch;
 let bgX = 0, bgY = 0, bgW = 0, bgH = 0;
 let x, y, dx = 3, dy = -3;
@@ -141,8 +140,12 @@ function drawBackground() {
   const sx = (cw - sw) / 2;
   const sy = (ch - sh) / 2;
 
+  // 흐리게 처리 추가
+  ctx.filter = 'blur(3px)';
   ctx.drawImage(bgImage, sx, sy, sw, sh);
+  ctx.filter = 'none'; // 다른 그리기에 영향 주지 않도록 초기화
 }
+
 
 function gameLoop() {
   if (gameOver) {
