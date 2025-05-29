@@ -20,8 +20,6 @@ canvas {
   top: 50%;
   transform: translate(-50%, -50%);
 }
-
-<<<<<<< HEAD
 #back-to-menu {
   position: fixed;
   top: 20px;
@@ -43,7 +41,7 @@ canvas {
   background-color: #ffe4b5;
   transform: scale(1.08);              /* 확대감 조금 더 */
   box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.2);
-=======
+}
 
 /* 애니메이션 키프레임 추가 */
 @keyframes fadeIn {
