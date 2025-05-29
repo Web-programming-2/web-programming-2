@@ -11,12 +11,10 @@ const bgImg      = new Image();
 bgImg.src        = stageBGs[curStage];
 
 /* ----------  스프라이트  ---------- */
-
 const savedSkin  = localStorage.getItem('ballSkin') || 'basketball.png';
-
-const ballImg  = new Image(); ballImg.src  = savedSkin;
-const dogImg   = new Image(); dogImg.src   = "dog.png";
-const heartImg = new Image(); heartImg.src = "heart.png";
+const ballImg    = new Image(); ballImg.src  = savedSkin;
+const dogImg     = new Image(); dogImg.src   = "dog.png";
+const heartImg   = new Image(); heartImg.src = "heart.png";
 
 /* ----------  전역 상태  ---------- */
 let cw, ch, bgW, bgH;
@@ -26,22 +24,27 @@ let ballW = 0, ballH = 0, ballR = 12, ballScale = 0.2;
 let x, y, dx = 3, dy = -3;
 
 /* Paddle / Dog */
-const paddleW = 75, paddleH = 10, paddleOff = 60;
+const paddleW   = 75;
+const paddleH   = 10;
+const paddleOff = 60;
 let   paddleX;
 let   dogW = 0, dogH = 0;
 
 /* Bricks */
-const brickW = 75, brickH = 20, brickRows = 3, brickTop = 100;
+const brickW     = 75;
+const brickH     = 20;
+const brickRows  = 3;
+const brickTop   = 100;
 let   cols, brickLeft, bricks = [];
 
 /* Falling blocks */
-const fall = [];     // {x,y,w,h,color}
+const fall      = [];     // {x,y,w,h,color}
 const fallSpeed = 1;
 
 /* Lives */
 let lives    = 3;
 const maxLives = 3;
-const heartS = 50;
+const heartS   = 50;
 
 /* Control */
 let right = false, left = false, gameOver = false;
@@ -84,10 +87,10 @@ function buildBricks() {
   brickLeft = (cw - cols * brickW) / 2;
 
   bricks = Array.from({ length: brickRows }, () =>
-    Array.from({ length: cols }, () => ({
-      status: 1,
-      color : `hsl(${Math.random() * 360},70%,50%)`
-    }))
+      Array.from({ length: cols }, () => ({
+        status: 1,
+        color : `hsl(${Math.random() * 360},70%,50%)`
+      }))
   );
 
   fall.length = 0;
@@ -95,7 +98,8 @@ function buildBricks() {
 
 function resetBall() {
   const cx  = paddleX + paddleW / 2;
-  const top = ch - paddleOff - dogH;
+  const padY = ch - paddleOff - paddleH;
+  const top = padY;
   const gap = 0;  // 거의 붙임
 
   x  = cx;
@@ -130,7 +134,7 @@ function drawBG() {
 }
 
 function showLoad(cb) {
-  if (!trans) { cb(); return; }          // 전환 요소 없으면 바로 진행
+  if (!trans) { cb(); return; }
   trans.style.display = "flex";
   setTimeout(() => {
     trans.style.display = "none";
@@ -145,7 +149,7 @@ function nextStage() {
   resetBall();
 }
 
-/* ----------  초기화 함수 (누락된 부분)  ---------- */
+/* ----------  초기화 함수  ---------- */
 function init() {
   resize();
   buildBricks();
@@ -186,8 +190,8 @@ function loop() {
     for (let r = brickRows - 1; r >= 0; r--) {
       for (let c = 0; c < cols; c++) {
         if (
-          bricks[r][c].status &&
-          (r === brickRows - 1 || !bricks[r + 1][c].status)
+            bricks[r][c].status &&
+            (r === brickRows - 1 || !bricks[r + 1][c].status)
         ) {
           cand.push({ r, c });
         }
@@ -213,15 +217,16 @@ function loop() {
     if (circRect(x + dx, y + dy, ballR, f.x, f.y, f.w, f.h)) {
       Math.abs((x + dx) - (f.x + f.w / 2)) >
       Math.abs((y + dy) - (f.y + f.h / 2))
-        ? (dx = -dx)
-        : (dy = -dy);
+          ? (dx = -dx)
+          : (dy = -dy);
       fall.splice(i, 1);
       continue;
     }
 
     f.y += fallSpeed;
 
-    if (f.y + f.h > ch - paddleOff) {
+    const padY = ch - paddleOff - paddleH;
+    if (f.y + f.h > padY) {
       fall.splice(i, 1);
       lives--;
       resetBall();
@@ -242,21 +247,21 @@ function loop() {
     ctx.fill();
   }
 
-  /* dog (paddle) */
-  const padY = ch - paddleOff - paddleH;
-  const dogX = paddleX + (paddleW - dogW) / 2;
-  const dogY = padY - 35;
+  /* paddle & dog */
+  const padY  = ch - paddleOff - paddleH;
+  const dogX  = paddleX + (paddleW - dogW) / 2;
+  const dogY  = padY - 35;  // 시각적 오프셋
   ctx.drawImage(dogImg, dogX, dogY, dogW, dogH);
 
   /* hearts */
   for (let i = 0; i < maxLives; i++) {
     ctx.globalAlpha = i < lives ? 1 : 0.3;
     ctx.drawImage(
-      heartImg,
-      cw - (i + 1) * (heartS + 5) - 10,
-      10,
-      heartS,
-      heartS
+        heartImg,
+        cw - (i + 1) * (heartS + 5) - 10,
+        10,
+        heartS,
+        heartS
     );
   }
   ctx.globalAlpha = 1;
@@ -276,18 +281,21 @@ function loop() {
       if (circRect(nx, ny, ballR, bx, by, brickW, brickH)) {
         Math.abs(nx - (bx + brickW / 2)) >
         Math.abs(ny - (by + brickH / 2))
-          ? (dx = -dx)
-          : (dy = -dy);
+            ? (dx = -dx)
+            : (dy = -dy);
         b.status = 0;
         break outer;
       }
     }
   }
 
-  /* walls & paddle */
+  /* walls & paddle collision */
   if (nx < ballR || nx > cw - ballR) dx = -dx;
   if (ny < ballR)                    dy = -dy;
-  else if (circRect(nx, ny, ballR, dogX, dogY, dogW, dogH)) dy = -dy;
+  else if (circRect(nx, ny, ballR,
+      paddleX, padY, paddleW, paddleH)) {
+    dy = -dy;
+  }
   else if (ny > ch - ballR - paddleOff) {
     lives--;
     resetBall();
@@ -324,6 +332,7 @@ function loop() {
 function goToMenu() {
   window.location.href = "../memory_game.html";
 }
+
 /* ----------  이벤트 ---------- */
 window.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") right = true;
