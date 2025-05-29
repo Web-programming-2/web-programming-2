@@ -1,6 +1,8 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const transitionScreen = document.getElementById('transition-screen');
+const lightningImage = new Image();
+lightningImage.src = 'lightning.png'; // 실제 경로와 파일 이름 확인 필요
 
 
 /* 전환용 함수 추가 */
@@ -31,7 +33,7 @@ let ballRadius = 12;
 const ballScale = 0.2;
 const brickWidth = 60;
 const brickHeight = 30;
-const brickRowCount = 1;
+const brickRowCount = 2;
 const brickOffsetTop = 100;
 const paddleWidth = 100;
 
@@ -178,26 +180,37 @@ function gameLoop() {
   ctx.globalAlpha = 1.0;
 
   for (let r = 0; r < brickRowCount; r++) {
-    for (let c = 0; c < cols; c++) {
-      const b = bricks[r][c];
-      if (b.status === 1) {
-        const bx = brickOffsetLeft + c * brickWidth;
-        const by = bgY + brickOffsetTop + r * brickHeight;
-        ctx.fillStyle = b.color;
-        ctx.fillRect(bx, by, brickWidth, brickHeight);
-        ctx.strokeStyle = '#333';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(bx, by, brickWidth, brickHeight);
-        if (b.type === 'electric') {
-          ctx.fillStyle = '#000';
-          ctx.font = `${brickHeight * 0.7}px Arial`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('⚡', bx + brickWidth / 2, by + brickHeight / 2);
-        }
+  for (let c = 0; c < cols; c++) {
+    const b = bricks[r][c];
+    if (b.status === 1) {
+      const bx = brickOffsetLeft + c * brickWidth;
+      const by = bgY + brickOffsetTop + r * brickHeight;
+
+      // 배경 색상: 파스텔톤 또는 전기 벽돌 노란색
+      ctx.fillStyle = b.type === 'electric' ? '#ffff99' : getPastelColor(r, c);
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.roundRect?.(bx, by, brickWidth, brickHeight, 10); // 둥근 모서리
+      ctx.fill();
+      ctx.strokeStyle = "#aaa";
+      ctx.stroke();
+      ctx.closePath();
+
+      // 전기 벽돌이면 번개 이미지 그리기
+      if (b.type === 'electric') {
+        const iconSize = brickHeight * 0.8;
+        const iconX = bx + (brickWidth - iconSize) / 2;
+        const iconY = by + (brickHeight - iconSize) / 2;
+        ctx.drawImage(lightningImage, iconX, iconY, iconSize, iconSize);
       }
     }
   }
+}
+
+
+
 
   if (ballW && ballH) {
     ctx.drawImage(ballImage, x - ballW / 2, y - ballH / 2, ballW, ballH);
@@ -286,3 +299,8 @@ function gameLoop() {
   function goToMenu() {
     window.location.href = "../memory_game.html";
   }
+
+  function getPastelColor(row, col) {
+  const hue = ((row + col) * 40) % 360;
+  return `hsl(${hue}, 90%, 60%)`;  // 밝고 부드러운 색상
+}
