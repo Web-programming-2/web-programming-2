@@ -23,7 +23,9 @@ let bgImage = bgImages[currentStage];
 
 const heartImage = new Image(); heartImage.src = 'heart.png';
 const dogImage = new Image(); dogImage.src = 'dog.png';
-const ballImage = new Image(); ballImage.src = 'basketball.png';
+
+const savedSkin  = localStorage.getItem('ballSkin') || 'basketball.png';
+const ballImage  = new Image(); ballImage.src   = savedSkin;
 
 let ballRadius = 12;
 const ballScale = 0.2;

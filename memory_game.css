@@ -231,3 +231,18 @@ body, html {
 #settings-back-button:hover {
   transform: scale(1.05);
 }
+
+/* ---------- 스테이지 선택 중앙 정렬 ---------- */
+#stage-select {
+  position: fixed;          /* 뷰포트 기준 고정 */
+  inset: 0;                 /* top/right/bottom/left 모두 0 → 화면 전체 차지 */
+  display: flex;            /* 플렉스 컨테이너로 */
+  flex-direction: column;   /* 세로 배치 */
+  justify-content: center;  /* 세로 중앙 */
+  align-items: center;      /* 가로 중앙 */
+  gap: 20px;                /* 버튼 간격 */
+  text-align: center;       /* 헤더/버튼 텍스트 중앙 */
+  background: white;   /* 필요하면 살짝 어두운 배경(옵션) */
+  z-index: 10;              /* 다른 요소보다 위 */
+}
+

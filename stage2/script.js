@@ -11,9 +11,18 @@ const bgImage = new Image();
 bgImage.src = stageBGs[currentStage];
 
 /* ---------- sprites ---------- */
+<<<<<<< HEAD
 const heartImage = new Image(); heartImage.src = "heart.png";
 const dogImage = new Image(); dogImage.src = "dog.png";
 const ballImage = new Image(); ballImage.src = "basketball.png";
+=======
+const heartImage  = new Image(); heartImage.src = "heart.png";
+const dogImage    = new Image(); dogImage.src   = "dog.png";
+
+
+const savedSkin  = localStorage.getItem('ballSkin') || 'basketball.png';
+const ballImage  = new Image(); ballImage.src   = savedSkin;
+>>>>>>> master
 
 /* ---------- constants ---------- */
 const ballScale = 0.2;
