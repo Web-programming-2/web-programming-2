@@ -1,3 +1,5 @@
+/* ────────────────────────────────────────────── */
+/* ① 화면 전체를 가로세로 꽉 채우도록 기본 세팅 */
 html, body {
   margin: 0;
   padding: 0;
@@ -5,158 +7,154 @@ html, body {
   height: 100%;
   overflow: hidden;
 }
-canvas {
-  display: block;
-  width: 100vw;
-  height: 100vh;
-}
+
+/* ② Canvas를 중앙에 고정 */
 #gameCanvas {
   position: absolute;
-  width: 75vmin; /* 화면의 짧은 축의 90% */
-  height: calc(90vmin * 1.38); /* 500:690 비율 유지 */
+  width: 75vmin;               /* 화면의 짧은 축의 75% */
+  height: calc(75vmin * 1.38); /* 대략 500:690 비율 유지 */
   max-width: 1200px;
   max-height: 690px;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+  z-index: 0;                  /* 가장 뒤 */
 }
-
-
-/* 애니메이션 키프레임 추가 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 0.7;
-  }
-}
-
-@keyframes fadenpc {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-#transition-image {
-  object-fit: cover;
-  opacity: 0;
-  position: absolute;
-  animation: fadeIn 2s forwards;
-}
-
-
-/* 전환 화면 */
-#transition-screen {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: black;
-  height: 100vh;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 10;
-}
-
-#transition-text {
-  position: relative;
-  z-index: 2;
-  font-size: 1.5rem;
-  color: white;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 80%;
-}
-
 
 #game-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 690px;
-  height: 1200px;
-  position: relative;
-  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75vmin;               /* 캔버스와 동일 비율 */
+  height: calc(75vmin * 1.38);
+  max-width: 1200px;
+  max-height: 690px;
+  overflow: hidden;
+  z-index: 0;                  /* 뒤쪽 레이어 */
 }
 
-
+/* 만약 배경 이미지를 <img id="game-image">로 쓴다면 */
 #game-image {
   position: absolute;
   top: 0;
   left: 0;
-  width: 690px;
-  height: 1200px;
-  opacity: 0.45; /* 배경처럼 희미하게 */
-  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.45;  /* 배경처럼 희미하게 */
+  z-index: 0;     /* 게임 캔버스 뒤에 놓이거나 위에 놓을 수 있음 */
 }
 
-
-#npc1{
-  position: absolute;
-  z-index: 100;
-  height: 670px;
-  width: 600px;
-  top:40%;
-  left: -3%;
-  
-   opacity: 0;
-  animation: fadenpc 2s forwards;
-}
-
-#npc1-text {
-  position: relative;
-  top: 30%;
-  left: 10%;
-  width: 100%;    
-  height: 100px;
-  padding: 100px 0 140px 0 ;
-  z-index: 2;
-  background-color: gray;
-  font-size: 3rem;
-  color: white;
-  text-align: center;
-  border-radius: 10px;
-  animation: fadeIn 3s forwards;
-}
-
-
-#npc-screen{
+/* ────────────────────────────────────────────── */
+/* ③ 전환 화면 (transition-screen) */
+#transition-screen {
   display: none;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 5;  /* 게임보다는 위에, NPC보다는 아래에 두기 */
+}
+
+#transition-image {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  opacity: 0;            /* fadeIn 애니메이션에 의해 점점 나타남 */
+  animation: fadeIn 2s forwards;
+}
+
+#transition-text {
+  position: absolute;
+  color: white;
+  font-size: 1.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 80%;
+  text-align: center;
+  z-index: 10;
+}
+
+/* ────────────────────────────────────────────── */
+/* ④ NPC 대화 오버레이 (#npc-screen) */
+
+/* NPC 화면 컨테이너: 전체 화면을 덮지만 배경을 완전히 가리지 않음 */
+#npc-screen {
+  display: none;            /* 초기엔 숨겨두기 */
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.0); /* 완전 투명하거나, 약간 어둡게 하고 싶으면 rgba(0,0,0,0.3) 등 */
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: black;
-  height: 100vh;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 10;
+  z-index: 10;              /* 게임보다는 위에 표시 */
 }
-#back-to-menu {
-  position: fixed;
+
+/* NPC 이미지 */
+#npc1 {
+  position: relative;       /* 절대가 아니라 상대 위치여도 됩니다 */
+  top: 10%;
+  z-index: 11;
+  width: 600px;
+  height: 670px;
+  opacity: 0;
+  animation: fadenpc 2s forwards;
+}
+
+/* NPC 대사 텍스트 */
+#npc1-text {
+  position: relative;
   top: 20px;
-  left: 20px;
-  padding: 14px 28px;                 /* 더 넓고 높게 */
-  font-size: 22px;                    /* 글자 크게 */
+  z-index: 11;
+  width: 80%;
+  background-color: gray;
+  color: white;
+  font-size: 2.5rem;
+  text-align: center;
+  border-radius: 10px;
+  padding: 20px;
+  opacity: 0;
+  animation: fadeIn 3s forwards;
+}
+
+/* “메뉴로 돌아가기” 버튼 */
+#back-to-menu {
+  position: relative;
+  margin-top: 20px;
+  padding: 14px 28px;
+  font-size: 22px;
   background-color: #fff8dc;
   color: #4b3832;
-  border: 3px solid #f5cda7;          /* 테두리도 살짝 굵게 */
+  border: 3px solid #f5cda7;
   border-radius: 14px;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15); /* 그림자도 조금 강화 */
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  z-index: 9999;
+  z-index: 11;
   font-family: 'Segoe UI', 'Pretendard', sans-serif;
   transition: all 0.2s ease-in-out;
 }
-
 #back-to-menu:hover {
   background-color: #ffe4b5;
-  transform: scale(1.08);              /* 확대감 조금 더 */
+  transform: scale(1.08);
   box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.2);
 }
 
+/* ────────────────────────────────────────────── */
+/* 애니메이션 키프레임 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 0.7; }
+}
+@keyframes fadenpc {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
