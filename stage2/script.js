@@ -40,7 +40,7 @@ const timeLimit = 30_000;
 let ballW = 0, ballH = 0, ballR = 12;
 let dogW = 0, dogH = 0;
 let cw, ch, bgW, bgH, bgX = 0, bgY = 0;
-let x, y, dx = 6, dy = -6;
+let x, y, dx = 5, dy = -5;
 let paddleX;
 let rightPressed = false, leftPressed = false;
 let bricks = [], cols, brickLeft, brickTop, brickW, brickH;
@@ -104,8 +104,8 @@ function getPastelColor(row, col) {
 function resetBall() {
   x = bgW / 2;
   y = bgH - paddleOffset - paddleHeight - ballR;
-  dx = 6;
-  dy = -6;
+  dx = 5;
+  dy = -5;
   fall.length = 0;
 }
 
@@ -255,23 +255,29 @@ function gameLoop() {
   }
 
   // stage clear
-  const bricksRemain = bricks.flat().some(b => b.status);
-  if (!bricksRemain && !stageCleared) {
-    stageCleared = true;
-    if (currentStage < stageBGs.length - 1) {
-      transitionScreen.style.display = 'flex';
-      setTimeout(() => {
-        transitionScreen.style.display = 'none';
-        currentStage++;
-        nextStage();
-      }, 2000);
-      return;
-    } else {
-      alert("YOU WIN!");
-      location.reload();
-      return;
-    }
+// stage clear
+const bricksRemain = bricks.flat().some(b => b.status);
+if (!bricksRemain && !stageCleared) {
+  stageCleared = true;
+  if (currentStage < stageBGs.length - 1) {
+    transitionScreen.style.display = 'flex';
+    setTimeout(() => {
+      transitionScreen.style.display = 'none';
+      currentStage++;
+      nextStage();
+    }, 2000);
+    return;
+  } else {
+    transitionScreen.style.display = 'flex';
+    setTimeout(() => {
+      transitionScreen.style.display = 'none';
+      // Stage 2가 끝났으므로 Stage 3로 이동
+      window.location.href = "../stage3/index.html";
+    }, 2000);
+    return;
   }
+}
+
 
   x += dx; y += dy;
   if (rightPressed && paddleX < bgW - paddleWidth) paddleX += 7;
@@ -290,6 +296,7 @@ function goToMenu() {
 window.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') rightPressed = true;
   if (e.key === 'ArrowLeft') leftPressed = true;
+  
 });
 window.addEventListener('keyup', e => {
   if (e.key === 'ArrowRight') rightPressed = false;

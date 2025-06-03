@@ -144,23 +144,32 @@ function explodeBricks(r, c) {
 }
 
 function nextStage() {
-  if (currentStage < bgImages.length - 1) {
+  if (currentStage === 0) {
+    // Stage 1 → Stage 2로
     currentStage++;
-    console.log(currentStage);
     bgImage = bgImages[currentStage];
-    console.log(bgImage);
     initBricks();
     resetBall();
-    stageCleared = false;
+  } else if (currentStage === 1) {
+    // Stage 2 → Stage 3 페이지로 이동
+    window.location.href = "../stage3/index.html";
   } else {
     alert('🎉 모든 스테이지를 클리어했습니다!');
     location.reload();
   }
 }
 
+
 window.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') rightPressed = true;
   if (e.key === 'ArrowLeft') leftPressed = true;
+  if (e.key === 'k' || e.key === 'K') {
+    for (let r = 0; r < bricks.length; r++) {
+      for (let c = 0; c < bricks[r].length; c++) {
+        bricks[r][c].status = 0;
+      }
+    }
+  }
 });
 window.addEventListener('keyup', e => {
   if (e.key === 'ArrowRight') rightPressed = false;
