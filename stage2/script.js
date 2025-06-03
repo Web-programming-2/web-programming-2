@@ -2,6 +2,9 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const transitionScreen = document.getElementById("transition-screen");
+const lightningImage = new Image();
+lightningImage.src = 'lightning.png'; // 실제 번개 아이콘 경로 확인
+
 
 /* ---------- stage data ---------- */
 const stageBGs = ["background1.jpg", "background2.jpg"];
@@ -81,14 +84,22 @@ function initBricks() {
   brickW = brickWidth;
   brickH = brickHeight;
 
-  bricks = Array.from({ length: brickRows }, () =>
-    Array.from({ length: cols }, () => ({
+  bricks = Array.from({ length: brickRows }, (_, r) =>
+    Array.from({ length: cols }, (_, c) => ({
       status: 1,
-      color: `hsl(${Math.random() * 360},70%,50%)`
+      color: getPastelColor(r, c)
     }))
   );
   fall.length = 0;
 }
+
+
+function getPastelColor(row, col) {
+  const hue = ((row + col) * 40) % 360;
+  return `hsl(${hue}, 90%, 60%)`;
+}
+
+
 
 function resetBall() {
   x = bgW / 2;
@@ -120,17 +131,26 @@ function gameLoop() {
   ctx.globalAlpha = 1;
 
   // draw bricks
+  // draw bricks
   for (let r = 0; r < brickRows; r++) {
     for (let c = 0; c < cols; c++) {
       const b = bricks[r][c]; if (!b.status) continue;
       const bx = brickLeft + c * brickW;
       const by = brickTop + r * brickH;
+
       ctx.fillStyle = b.color;
-      ctx.fillRect(bx, by, brickW, brickH);
-      ctx.strokeStyle = "#333"; ctx.lineWidth = 2;
-      ctx.strokeRect(bx, by, brickW, brickH);
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect?.(bx, by, brickW, brickH, 10);
+      ctx.fill();
+      ctx.strokeStyle = "#aaa";
+      ctx.stroke();
+      ctx.closePath();
     }
   }
+
+
 
   // draw ball
   ballW
@@ -205,8 +225,8 @@ function gameLoop() {
       }
     }
 
-    for (let i = fall.length - 1; i >= 0; i--) {
-      const f = fall[i];
+      for (let i = fall.length - 1; i >= 0; i--) {
+        const f = fall[i];
       if (circRect(x + dx, y + dy, ballR, f.x, f.y, f.w, f.h)) {
         Math.abs((x + dx) - (f.x + f.w / 2)) > Math.abs((y + dy) - (f.y + f.h / 2))
           ? (dx = -dx) : (dy = -dy);
@@ -222,9 +242,14 @@ function gameLoop() {
         resetBall();
       } else {
         ctx.fillStyle = f.color;
-        ctx.strokeStyle = "#333";
-        ctx.fillRect(f.x, f.y, f.w, f.h);
-        ctx.strokeRect(f.x, f.y, f.w, f.h);
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect?.(f.x, f.y, f.w, f.h, 10);
+        ctx.fill();
+        ctx.strokeStyle = "#aaa";
+        ctx.stroke();
+        ctx.closePath();
       }
     }
   }

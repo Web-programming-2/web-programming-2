@@ -82,19 +82,25 @@ function resize() {
   paddleX = (cw - paddleW) / 2;
 }
 
+function getPastelColor(row, col) {
+  const hue = ((row + col) * 40) % 360;
+  return `hsl(${hue}, 90%, 60%)`;
+}
+
 function buildBricks() {
   cols      = Math.floor(cw / brickW);
   brickLeft = (cw - cols * brickW) / 2;
 
-  bricks = Array.from({ length: brickRows }, () =>
-      Array.from({ length: cols }, () => ({
+  bricks = Array.from({ length: brickRows }, (_, r) =>
+      Array.from({ length: cols }, (_, c) => ({
         status: 1,
-        color : `hsl(${Math.random() * 360},70%,50%)`
+        color : getPastelColor(r, c)
       }))
   );
 
   fall.length = 0;
 }
+
 
 function resetBall() {
   const cx  = paddleX + paddleW / 2;
@@ -178,9 +184,15 @@ function loop() {
       const by = brickTop  + r * brickH;
 
       ctx.fillStyle   = b.color;
-      ctx.strokeStyle = "#333";
-      ctx.fillRect(bx, by, brickW, brickH);
-      ctx.strokeRect(bx, by, brickW, brickH);
+      ctx.strokeStyle = "#aaa";
+      ctx.lineWidth   = 2;
+      ctx.lineJoin    = "round";
+
+      ctx.beginPath();
+      ctx.roundRect?.(bx, by, brickW, brickH, 10);
+      ctx.fill();
+      ctx.stroke();
+      ctx.closePath();
     }
   }
 
@@ -232,9 +244,14 @@ function loop() {
       resetBall();
     } else {
       ctx.fillStyle   = f.color;
-      ctx.strokeStyle = "#333";
-      ctx.fillRect(f.x, f.y, f.w, f.h);
-      ctx.strokeRect(f.x, f.y, f.w, f.h);
+      ctx.strokeStyle = "#aaa";
+      ctx.lineWidth   = 2;
+      ctx.lineJoin    = "round";
+      ctx.beginPath();
+      ctx.roundRect?.(f.x, f.y, f.w, f.h, 10);
+      ctx.fill();
+      ctx.stroke();
+      ctx.closePath();
     }
   }
 
