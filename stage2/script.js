@@ -1,11 +1,11 @@
 let score = 0;
+
 /* ---------- canvas & transition ---------- */
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const transitionScreen = document.getElementById("transition-screen");
 const lightningImage = new Image();
 lightningImage.src = 'lightning.png'; // 실제 번개 아이콘 경로 확인
-
 
 /* ---------- stage data ---------- */
 const stageBGs = ["background1.jpg", "background2.jpg"];
@@ -15,14 +15,11 @@ const bgImage = new Image();
 bgImage.src = stageBGs[currentStage];
 
 /* ---------- sprites ---------- */
-
 const heartImage  = new Image(); heartImage.src = "heart.png";
 const dogImage    = new Image(); dogImage.src   = "dog.png";
 
-
 const savedSkin  = localStorage.getItem('ballSkin') || 'basketball.png';
 const ballImage  = new Image(); ballImage.src   = savedSkin;
-
 
 /* ---------- constants ---------- */
 const ballScale = 0.25;
@@ -73,6 +70,7 @@ function resizeCanvas() {
   ch = bgH = canvas.height;
   paddleX = (bgW - paddleWidth) / 2;
 }
+
 function drawHourglass(ctx, x, y, width, height) {
   const w = width;
   const h = height;
@@ -123,7 +121,6 @@ function initBricks() {
   fall.length = 0;
 }
 
-
 function getPastelColor(row, col) {
   const hue = ((row + col) * 40) % 360;
   return `hsl(${hue}, 90%, 60%)`;
@@ -136,6 +133,7 @@ function resetBall() {
   dy = -6;
   fall.length = 0;
 }
+
 function nextStage() {
   stageCleared = false;
   bgImage.src = stageBGs[currentStage];
@@ -145,6 +143,72 @@ function nextStage() {
   startTime = Date.now();
   requestAnimationFrame(gameLoop);
 }
+
+/* ---------- NPC 대화용 helper ---------- */
+function showNPCDialogues(dialogues, onComplete) {
+  let idx = 0;
+
+  // NPC 대화용 오버레이 엘리먼트 생성
+  const npcOverlay = document.createElement('div');
+  npcOverlay.id = 'npc-screen';
+  Object.assign(npcOverlay.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column',
+    cursor: 'pointer',
+    zIndex: '9999'
+  });
+
+  // 내부에 이미지와 텍스트를 담을 요소들 생성
+  const imgEl = document.createElement('img');
+  imgEl.id = dialogues[0].imgId || 'npc-img';
+  imgEl.style.maxWidth = '40%';
+  imgEl.style.marginBottom = '20px';
+
+  const textEl = document.createElement('p');
+  textEl.id = dialogues[0].textId || 'npc-text';
+  Object.assign(textEl.style, {
+    color: '#fff',
+    fontSize: '1.2rem',
+    textAlign: 'center',
+    maxWidth: '60%'
+  });
+
+  npcOverlay.appendChild(imgEl);
+  npcOverlay.appendChild(textEl);
+  document.body.appendChild(npcOverlay);
+
+  // 현재 대사로 초기화
+  function renderDialogue() {
+    const d = dialogues[idx];
+    imgEl.src = d.imgSrc;
+    imgEl.id = d.imgId;
+    textEl.textContent = d.text;
+    textEl.id = d.textId;
+  }
+
+  renderDialogue();
+
+  // 클릭 시 다음 대사로 이동하거나 종료
+  npcOverlay.addEventListener('click', () => {
+    idx++;
+    if (idx < dialogues.length) {
+      renderDialogue();
+    } else {
+      // 마지막 대사까지 모두 본 뒤
+      document.body.removeChild(npcOverlay);
+      if (typeof onComplete === 'function') onComplete();
+    }
+  });
+}
+
 /* ---------- game loop ---------- */
 function gameLoop() {
   const elapsed = Date.now() - startTime;
@@ -164,6 +228,7 @@ function gameLoop() {
   ctx.globalAlpha = 0.4;
   ctx.drawImage(bgImage, bgX, bgY, bgW, bgH);
   ctx.globalAlpha = 1;
+
   // draw timer
   ctx.font = "bold 35px sans-serif";
   ctx.fillStyle = "yellow";
@@ -171,10 +236,12 @@ function gameLoop() {
   ctx.fillStyle = "white";
   ctx.fillText(`SCORE: ${score}`, 20, 120);
 
+
   // draw bricks
   for (let r = 0; r < brickRows; r++) {
     for (let c = 0; c < cols; c++) {
-      const b = bricks[r][c]; if (!b.status) continue;
+      const b = bricks[r][c];
+      if (!b.status) continue;
       const bx = brickLeft + c * brickW;
       const by = brickTop + r * brickH;
 
@@ -189,23 +256,38 @@ function gameLoop() {
       ctx.closePath();
     }
   }
+
   // draw ball
-  ballW
-    ? ctx.drawImage(ballImage, x - ballW / 2, y - ballH / 2, ballW, ballH)
-    : (ctx.beginPath(), ctx.arc(x, y, ballR, 0, Math.PI * 2),
-      ctx.fillStyle = "#0095DD", ctx.fill());
+  if (ballW) {
+    ctx.drawImage(ballImage, x - ballW / 2, y - ballH / 2, ballW, ballH);
+  } else {
+    ctx.beginPath();
+    ctx.arc(x, y, ballR, 0, Math.PI * 2);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+  }
+
   // draw dog paddle
   const padY = bgH - paddleOffset - paddleHeight;
   const dogX = paddleX + (paddleWidth - dogW) / 2;
   const dogY = padY - 80;
   ctx.drawImage(dogImage, dogX, dogY, dogW, dogH);
+
+  // draw hourglasses
   for (let i = hourglasses.length - 1; i >= 0; i--) {
     const hg = hourglasses[i];
     hg.y += 2;
 
-    //모래시계
+
+
     drawHourglass(ctx, hg.x, hg.y, hg.w, hg.h);
 
+    // 충돌 검사
+    if (circRect(x, y, ballR, hg.x, hg.y, hg.w, hg.h)) {
+      extraTime += 5000; // 5초 추가
+      hourglasses.splice(i, 1);
+      continue;
+    }
 
   // 충돌 검사
     if (circRect(x, y, ballR, hg.x, hg.y, hg.w, hg.h)) {
@@ -218,25 +300,33 @@ function gameLoop() {
     if (hg.y > ch) hourglasses.splice(i, 1);
   }
 
+
   // draw hearts
   for (let i = 0; i < maxLives; i++) {
-    ctx.globalAlpha = i < lives ? 1 : .3;
+    ctx.globalAlpha = i < lives ? 1 : 0.3;
     const hx = bgW - (i + 1) * (heartSize + 5) - 10;
     ctx.drawImage(heartImage, hx, 30, heartSize, heartSize);
   }
   ctx.globalAlpha = 1;
 
+  // draw timer (다시 쓰더라도 충돌 후에도 보이도록)
+
+
+
   // collision with bricks
   const nx = x + dx, ny = y + dy;
   outer: for (let r = 0; r < brickRows; r++) {
     for (let c = 0; c < cols; c++) {
-      const b = bricks[r][c]; if (!b.status) continue;
+      const b = bricks[r][c];
+      if (!b.status) continue;
       const bx = brickLeft + c * brickW;
       const by = brickTop + r * brickH;
       if (circRect(nx, ny, ballR, bx, by, brickW, brickH)) {
+
         Math.abs(nx - (bx + brickW / 2)) > Math.abs(ny - (by + brickH / 2)) ? dx = -dx : dy = -dy;
         b.status = 0;
         score += 10; // ✅ 점수 10점 증가
+
         break outer;
       }
     }
@@ -245,8 +335,12 @@ function gameLoop() {
   // wall and paddle
   if (nx < ballR || nx > bgW - ballR) dx = -dx;
   if (ny < ballR) dy = -dy;
-  else if (circRect(nx, ny, ballR, paddleX, padY, paddleWidth, paddleHeight)) dy = -dy;
-  else if (ny > bgH - ballR - paddleOffset) { lives--; resetBall(); }
+  else if (circRect(nx, ny, ballR, paddleX, padY, paddleWidth, paddleHeight)) {
+    dy = -dy;
+  } else if (ny > bgH - ballR - paddleOffset) {
+    lives--;
+    resetBall();
+  }
 
   // stage 2 falling blocks
   if (currentStage === 1) {
@@ -274,11 +368,14 @@ function gameLoop() {
       }
     }
 
-      for (let i = fall.length - 1; i >= 0; i--) {
-        const f = fall[i];
+    for (let i = fall.length - 1; i >= 0; i--) {
+      const f = fall[i];
       if (circRect(x + dx, y + dy, ballR, f.x, f.y, f.w, f.h)) {
-        Math.abs((x + dx) - (f.x + f.w / 2)) > Math.abs((y + dy) - (f.y + f.h / 2))
-          ? (dx = -dx) : (dy = -dy);
+        if (Math.abs((x + dx) - (f.x + f.w / 2)) > Math.abs((y + dy) - (f.y + f.h / 2))) {
+          dx = -dx;
+        } else {
+          dy = -dy;
+        }
         fall.splice(i, 1);
         continue;
       }
@@ -302,38 +399,74 @@ function gameLoop() {
       }
     }
   }
+
   if (currentStage === 1 && Math.random() < 0.003) { // 확률 조절
-  const hx = Math.random() * (bgW - 40) + 20;
-  hourglasses.push({ x: hx, y: -30, w: 30, h: 30 });
-}
-
-
-  // stage clear
-// stage clear
-const bricksRemain = bricks.flat().some(b => b.status);
-if (!bricksRemain && !stageCleared) {
-  stageCleared = true;
-  if (currentStage < stageBGs.length - 1) {
-    transitionScreen.style.display = 'flex';
-    setTimeout(() => {
-      transitionScreen.style.display = 'none';
-      currentStage++;
-      nextStage();
-    }, 2000);
-    return;
-  } else {
-    transitionScreen.style.display = 'flex';
-    setTimeout(() => {
-      transitionScreen.style.display = 'none';
-      // Stage 2가 끝났으므로 Stage 3로 이동
-      window.location.href = "../stage3/index.html";
-    }, 2000);
-    return;
+    const hx = Math.random() * (bgW - 40) + 20;
+    hourglasses.push({ x: hx, y: -30, w: 30, h: 30 });
   }
-}
 
+  /* ---------- stage clear ---------- */
+  const bricksRemain = bricks.flat().some(b => b.status);
+  if (!bricksRemain && !stageCleared) {
+    stageCleared = true;
+    if (currentStage < stageBGs.length - 1) {
+      transitionScreen.style.display = 'flex';
+      setTimeout(() => {
+        // transition 화면 숨기기
+        transitionScreen.style.display = 'none';
 
-  x += dx; y += dy;
+        // 1스테이지 클리어 후 NPC 대화 보여주기
+        const dialogues = [
+          {
+            imgSrc: 'seoulgi.png',
+            imgId: 'npc2',
+            textId: 'npc2-text',
+            text: '배고파... 혹시 먹을 거 좀 찾아볼까?'
+          },
+          {
+            imgSrc: 'streetdog.png',
+            imgId: 'npc3',
+            textId: 'npc3-text',
+            text: '저기 깊은 숲 속엔 열매가 있을지도 몰라!'
+          }
+        ];
+
+        showNPCDialogues(dialogues, () => {
+          // NPC 대화 끝나면 2스테이지 진입
+          currentStage++;
+          nextStage();
+        });
+      }, 2000);
+      return;
+    } else {
+      setTimeout(() => {
+        // 마지막 스테이지 클리어 후 NPC 대화 보여주기
+        const dialogues = [
+          {
+            imgSrc: 'seoulgi.png',
+            imgId: 'npc2',
+            textId: 'npc2-text',
+            text: '이제 집으로 가고 싶어...'
+          },
+          {
+            imgSrc: 'streetdog.png',
+            imgId: 'npc3',
+            textId: 'npc3-text',
+            text: '열차 타고 집으로가자...'
+          }
+        ];
+
+        showNPCDialogues(dialogues, () => {
+          // NPC 대화 끝나면 Stage 3로 이동
+          window.location.href = "../stage3/index.html";
+        });
+      }, 2000);
+      return;
+    }
+  }
+
+  x += dx;
+  y += dy;
   if (rightPressed && paddleX < bgW - paddleWidth) paddleX += 7;
   if (leftPressed && paddleX > 0) paddleX -= 7;
   if (lives <= 0) gameOver = true;
@@ -350,26 +483,84 @@ function goToMenu() {
 window.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') rightPressed = true;
   if (e.key === 'ArrowLeft') leftPressed = true;
-    if (e.key === 'k' || e.key === 'K') {
+  if (e.key === 'k' || e.key === 'K') {
     for (let r = 0; r < bricks.length; r++) {
       for (let c = 0; c < bricks[r].length; c++) {
         bricks[r][c].status = 0;
       }
     }
   }
-  
 });
 window.addEventListener('keyup', e => {
   if (e.key === 'ArrowRight') rightPressed = false;
   if (e.key === 'ArrowLeft') leftPressed = false;
 });
-
-/* ---------- start ---------- */
+/* ---------- start (load) ---------- */
 window.addEventListener('resize', resizeCanvas);
 window.addEventListener('load', () => {
   resizeCanvas();
-  initBricks();
-  resetBall();
-  startTime = Date.now();
-  requestAnimationFrame(gameLoop);
+
+  // 1) 초기 배경 이미지를 'backgroundme.jpg'로 설정
+  bgImage.src = 'backgroundme.jpg';
+
+  // 2) 화면에 배경 이미지를 한 번 그리고, 그 위에 <p>를 띄우는 오버레이를 생성
+  const introOverlay = document.createElement('div');
+  introOverlay.id = 'intro-screen';
+  Object.assign(introOverlay.style, {
+    position: 'fixed',
+    top: '0',
+    left: '50vh',
+    width: '75vh',
+    height: '100vh',
+    backgroundImage: "url('backgroundme.jpg')",
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    cursor: 'pointer',
+    zIndex: '9999'
+  });
+
+  const introText = document.createElement('p');
+  introText.textContent = '오리에 집으로 출발한 설기 하지만 연료가 부족해서 중간에 멈춰야만 하는데...';
+  Object.assign(introText.style, {
+    color: '#ffffff',
+    fontSize: '1.5rem',
+    textAlign: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: '20px 30px',
+    borderRadius: '8px'
+  });
+
+  introOverlay.appendChild(introText);
+  document.body.appendChild(introOverlay);
+
+  // NPC 대화 내용 정의
+  const initialDialogues = [
+    {
+      imgSrc: 'seoulgi.png',
+      imgId: 'npc0',
+      textId: 'npc0-text',
+      text: '앗... 연료가 다 떨어졌어. 오늘은 여기서 자야 할 것 같아...'
+    },
+    {
+      imgSrc: 'streetdog.png',
+      imgId: 'npc3',
+      textId: 'npc3-text',
+      text: '풍경도 멋진데 여기서 자고갈까?'
+    }
+  ];
+
+  // 3) 오버레이 클릭 시 제거 → NPC 대화 보여주기 → NPC 대화 끝나면 1스테이지 시작
+  introOverlay.addEventListener('click', () => {
+    document.body.removeChild(introOverlay);
+
+    showNPCDialogues(initialDialogues, () => {
+      initBricks();
+      resetBall();
+      startTime = Date.now();
+      requestAnimationFrame(gameLoop);
+    });
+  });
 });
