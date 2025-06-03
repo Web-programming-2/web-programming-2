@@ -7,8 +7,11 @@
 </head>
 <body>
   <div id="side-wrapper">
-    <!-- 왼쪽 이미지 -->
+  <div class="image-wrapper">
     <img src="left.jpg" class="side-image" id="left-img" />
+    <div class="tape tape-left"></div>
+  </div>
+
 
     <!-- 중앙 게임 영역 -->
     <div id="center-area">
@@ -22,9 +25,11 @@
       </div>
     </div>
 
-    <!-- 오른쪽 이미지 -->
-    <img src="right.jpg" class="side-image" id="right-img" />
-  </div>
+    <div class="image-wrapper">
+      <img src="right.jpg" class="side-image" id="right-img" />
+      <div class="tape tape-right"></div>
+    </div>
+
   <!-- 0. 소리 켜기/끄기 버튼 (페이지 상단 오른쪽) -->
   <img id="sound-toggle" src="sound_off.png" alt="소리 켜기" />
   <!-- 4. BGM 오디오 요소 -->
