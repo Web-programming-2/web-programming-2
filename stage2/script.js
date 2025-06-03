@@ -25,16 +25,16 @@ const ballImage  = new Image(); ballImage.src   = savedSkin;
 
 
 /* ---------- constants ---------- */
-const ballScale = 0.2;
-const brickWidth = 60;
-const brickHeight = 30;
-const brickOffsetTop = 100;
-const paddleWidth = 100;
+const ballScale = 0.25;
+const brickWidth = 80;
+const brickHeight = 40;
+const brickOffsetTop = 180;
+const paddleWidth = 150;
 const paddleHeight = 10;
 const paddleOffset = 60;
 const fallSpeed = 1;
 const maxLives = 3;
-const heartSize = 70;
+const heartSize = 90;
 const timeLimit = 60_000;
 
 let hourglasses = []; // 모래시계 아이템 목록
@@ -165,11 +165,11 @@ function gameLoop() {
   ctx.drawImage(bgImage, bgX, bgY, bgW, bgH);
   ctx.globalAlpha = 1;
   // draw timer
-  ctx.font = "bold 28px sans-serif";
+  ctx.font = "bold 35px sans-serif";
   ctx.fillStyle = "yellow";
-  ctx.fillText(`TIME: ${remain}s`, 20, 40);
+  ctx.fillText(`TIME: ${remain}s`, 20, 80);
   ctx.fillStyle = "white";
-ctx.fillText(`SCORE: ${score}`, 20, 80);
+  ctx.fillText(`SCORE: ${score}`, 20, 120);
 
   // draw bricks
   // draw bricks
@@ -198,39 +198,39 @@ ctx.fillText(`SCORE: ${score}`, 20, 80);
   // draw dog paddle
   const padY = bgH - paddleOffset - paddleHeight;
   const dogX = paddleX + (paddleWidth - dogW) / 2;
-  const dogY = padY - 35;
+  const dogY = padY - 80;
   ctx.drawImage(dogImage, dogX, dogY, dogW, dogH);
   for (let i = hourglasses.length - 1; i >= 0; i--) {
-  const hg = hourglasses[i];
-  hg.y += 2;
+    const hg = hourglasses[i];
+    hg.y += 2;
 
-  //모래시계
-  drawHourglass(ctx, hg.x, hg.y, hg.w, hg.h);
+    //모래시계
+    drawHourglass(ctx, hg.x, hg.y, hg.w, hg.h);
 
 
   // 충돌 검사
-  if (circRect(x, y, ballR, hg.x, hg.y, hg.w, hg.h)) {
-    extraTime += 5000; // 5초 추가
-    hourglasses.splice(i, 1);
-    continue;
-  }
+    if (circRect(x, y, ballR, hg.x, hg.y, hg.w, hg.h)) {
+      extraTime += 5000; // 5초 추가
+      hourglasses.splice(i, 1);
+      continue;
+    }
 
-  // 화면 벗어나면 제거
-  if (hg.y > ch) hourglasses.splice(i, 1);
-}
+    // 화면 벗어나면 제거
+    if (hg.y > ch) hourglasses.splice(i, 1);
+  }
 
   // draw hearts
   for (let i = 0; i < maxLives; i++) {
     ctx.globalAlpha = i < lives ? 1 : .3;
     const hx = bgW - (i + 1) * (heartSize + 5) - 10;
-    ctx.drawImage(heartImage, hx, 10, heartSize, heartSize);
+    ctx.drawImage(heartImage, hx, 30, heartSize, heartSize);
   }
   ctx.globalAlpha = 1;
 
-  // draw timer
-  ctx.font = "bold 28px sans-serif";
-  ctx.fillStyle = "yellow";
-  ctx.fillText(`TIME: ${remain}s`, 20, 40);
+  // // draw timer
+  // ctx.font = "bold 28px sans-serif";
+  // ctx.fillStyle = "yellow";
+  // ctx.fillText(`TIME: ${remain}s`, 20, 40);
 
   // collision with bricks
   const nx = x + dx, ny = y + dy;
