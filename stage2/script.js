@@ -35,7 +35,7 @@ const paddleOffset = 60;
 const fallSpeed = 1;
 const maxLives = 3;
 const heartSize = 70;
-const timeLimit = 30_000;
+const timeLimit = 60_000;
 
 let hourglasses = []; // 모래시계 아이템 목록
 let extraTime = 0; // 추가된 시간 저장

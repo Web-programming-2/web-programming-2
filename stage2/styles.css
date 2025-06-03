@@ -103,18 +103,23 @@ body {
 }
 /* 전환 화면 */
 #transition-screen {
-  display: none;
+  display: none;              /* 필요할 때 JS로 display: flex; */
+  position: fixed;            /* 뷰포트를 기준으로 고정 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* flex 레이아웃 그대로 유지 */
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  width: 75vh;                /* 세로 길이를 기준으로 가로 크기를 설정했다면 그대로 둡니다 */
+  height: 100vh;              /* 전체 높이 */
   background: black;
-  height: 100vh;
-  width: 75vh;
-  position: absolute;
-  top: 0;
-  left: 0;
   z-index: 10;
 }
+
 
 #transition-text {
   position: relative;
