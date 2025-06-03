@@ -154,3 +154,103 @@ html, body {
   left: 0;
   z-index: 10;
 }
+
+/* 전체 wrapper 설정 */
+#side-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: white;
+}
+
+/* 좌우 이미지 wrapper */
+.image-wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 0 40px;
+}
+
+.side-image {
+  width: 300px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+  opacity: 0.8;
+}
+
+/* 이미지 테이프 효과 */
+.tape {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  width: 60px;
+  height: 18px;
+  background: rgba(255, 244, 184, 0.7);
+  border: 1px solid rgba(224, 212, 143, 0.6);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 2px;
+  z-index: 10;
+}
+
+/* 왼쪽 이미지 테이프 위치 */
+.tape-left {
+  transform: rotate(-5deg);
+}
+
+/* 오른쪽 이미지 테이프 위치 */
+.tape-right {
+  left: unset;
+  right: 20px;
+  transform: rotate(5deg);
+}
+
+/* 좌우 이미지 회전 효과 */
+#right-img {
+  transform: rotate(5deg);
+}
+
+#left-img {
+  transform: rotate(-3deg);
+}
+
+/* 가운데 게임 영역 정렬 */
+#center-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* 좌우 이미지 wrapper: 좌우 여백을 더 넓게 설정하여 바깥쪽으로 이동 */
+.image-wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 0 380px; /* 이 값을 크게 할수록 이미지가 더 바깥쪽으로 이동합니다 */
+}
+
+.side-image {
+  width: 300px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+  opacity: 0.8;
+  border: 4px solid black; /* 검은색 테두리 추가 */
+}
+
+#right-img {
+  width: 300px;
+  height: 200px;
+  transform: rotate(3deg); /* 시계 방향으로 5도 회전 */
+}
+
+#left-img {
+  width: 300px;
+  height: 200px;
+  margin-right: 50px;
+  transform: rotate(-3deg); /* 반시계 방향으로 5도 회전 */
+}

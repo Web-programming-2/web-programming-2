@@ -5,39 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Breakout Game</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    #sound-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 32px;
-      height: 32px;
-      cursor: pointer;
-      z-index: 1000;
-    }
-  </style>
 </head>
 <body>
+  <!-- 전체를 감싸는 래퍼 -->
+  <div id="side-wrapper">
+    <!-- 왼쪽 이미지 -->
+    <div class="image-wrapper">
+      <img src="left.jpg" class="side-image" id="left-img" />
+      <div class="tape tape-left"></div>
+    </div>
+
+    <!-- 중앙 게임 영역 -->
+    <div id="center-area">
+      <canvas id="gameCanvas"></canvas>
+      <button id="back-to-menu" onclick="goToMenu()">🏠 게임 나가기</button>
+
+      <!-- 전환 화면 -->
+      <div id="transition-screen" class="container" style="display: none;">
+        <img src="봄1_로딩창.jpg" alt="Intro Image" id="transition-image" />
+        <p id="transition-text">
+          봄에는 역시 벚꽃! 무작정 반포 한강 공원으로 가보려는데 도착한 뚝섬 유원지에서 피크닉을 잠시 즐겨보자
+        </p>
+      </div>
+    </div>
+
+    <!-- 오른쪽 이미지 -->
+    <div class="image-wrapper">
+      <img src="right.jpg" class="side-image" id="right-img" />
+      <div class="tape tape-right"></div>
+    </div>
+  </div>
+
   <!-- 소리 토글 아이콘 -->
   <img id="sound-toggle" src="sound_off.png" alt="소리 켜기" />
-
-  <!-- 게임 캔버스 -->
-  <canvas id="gameCanvas"></canvas>
-  <button id="back-to-menu" onclick="goToMenu()">🏠 게임 나가기</button>
-
-  <!-- 스테이지 전환 화면 -->
-  <div id="transition-screen" class="container" style="display: none;">
-    <img src="봄1_로딩창.jpg" alt="Intro Image" id="transition-image" />
-    <p id="transition-text">
-      봄에는 역시 벚꽃! 무작정 반포 한강 공원으로 가보려는데 도착한 뚝섬 유원지에서 피크닉을 잠시 즐겨보자
-    </p>
-  </div>
-
-  <!-- 게임 이미지 및 서브 캔버스 -->
-  <div id="game-container" style="display: none;">
-    <img src="봄1.jpg" alt="Intro Image" id="game-image" />
-    <canvas id="canvas-game" width="690" height="1200"></canvas>
-  </div>
 
   <!-- 배경음악 -->
   <audio id="bgm" src="../bgm.mp3" loop autoplay muted></audio>
@@ -57,19 +57,14 @@
 
       if (!bgm || !soundToggle) return;
 
-      // 항상 음소거로 시작
-      localStorage.removeItem('bgm-time');
-      localStorage.removeItem('bgm-muted');
       bgm.muted = true;
 
-      // 아이콘 상태 갱신
       function updateIcon() {
         soundToggle.src = bgm.muted ? 'sound_off.png' : 'sound_on.png';
         soundToggle.alt = bgm.muted ? '소리 켜기' : '소리 끄기';
       }
       updateIcon();
 
-      // 자동 재생 시도
       const playPromise = bgm.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {
@@ -81,7 +76,6 @@
         });
       }
 
-      // 소리 토글 버튼 클릭 이벤트
       soundToggle.addEventListener('click', () => {
         bgm.muted = !bgm.muted;
         if (!bgm.muted) {
