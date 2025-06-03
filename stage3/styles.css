@@ -59,6 +59,8 @@ html, body {
   opacity: 0;
   position: absolute;
   animation: fadeIn 2s forwards;
+    height: 100vh;
+  width: 75vh;
 }
 
 
@@ -70,7 +72,7 @@ html, body {
   justify-content: center;
   background: black;
   height: 100vh;
-  width: 100%;
+  width: 75vh;
   position: absolute;
   top: 0;
   left: 0;
