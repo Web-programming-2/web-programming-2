@@ -47,8 +47,8 @@ const ballImage = new Image(); ballImage.src = savedSkin;
 
 let ballRadius = 12;
 const ballScale     = 0.2;
-const brickWidth    = 60;
-const brickHeight   = 30;
+const brickWidth    = 80;
+const brickHeight   = 40;
 const brickRowCount = 2;
 const brickOffsetTop= 100;
 const paddleWidth   = 100;
