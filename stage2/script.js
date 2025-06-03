@@ -36,6 +36,9 @@ const maxLives = 3;
 const heartSize = 70;
 const timeLimit = 30_000;
 
+let hourglasses = []; // 모래시계 아이템 목록
+let extraTime = 0; // 추가된 시간 저장
+
 /* ---------- run-time state ---------- */
 let ballW = 0, ballH = 0, ballR = 12;
 let dogW = 0, dogH = 0;
@@ -122,13 +125,29 @@ function nextStage() {
 /* ---------- game loop ---------- */
 function gameLoop() {
   const elapsed = Date.now() - startTime;
-  if (elapsed > timeLimit) { alert("TIME OVER"); location.reload(); return; }
-  if (gameOver) { alert("GAME OVER"); location.reload(); return; }
+
+  if (elapsed > timeLimit + extraTime) {
+    alert("TIME OVER");
+    location.reload();
+    return;
+  }
+  if (gameOver) {
+    alert("GAME OVER");
+    location.reload();
+    return;
+  }
+
+  const remain = Math.max(0, Math.ceil((timeLimit + extraTime - elapsed) / 1000));
 
   ctx.clearRect(0, 0, cw, ch);
-  ctx.globalAlpha = .4;
+  ctx.globalAlpha = 0.4;
   ctx.drawImage(bgImage, bgX, bgY, bgW, bgH);
   ctx.globalAlpha = 1;
+
+  // draw timer
+  ctx.font = "bold 28px sans-serif";
+  ctx.fillStyle = "yellow";
+  ctx.fillText(`TIME: ${remain}s`, 20, 40);
 
   // draw bricks
   // draw bricks
@@ -164,6 +183,30 @@ function gameLoop() {
   const dogY = padY - 35;
   ctx.drawImage(dogImage, dogX, dogY, dogW, dogH);
 
+  for (let i = hourglasses.length - 1; i >= 0; i--) {
+  const hg = hourglasses[i];
+  hg.y += 2;
+
+  // 그리기
+  ctx.fillStyle = "gold";
+  ctx.beginPath();
+  ctx.moveTo(hg.x + hg.w / 2, hg.y);
+  ctx.lineTo(hg.x, hg.y + hg.h);
+  ctx.lineTo(hg.x + hg.w, hg.y + hg.h);
+  ctx.closePath();
+  ctx.fill();
+
+  // 충돌 검사
+  if (circRect(x, y, ballR, hg.x, hg.y, hg.w, hg.h)) {
+    extraTime += 5000; // 5초 추가
+    hourglasses.splice(i, 1);
+    continue;
+  }
+
+  // 화면 벗어나면 제거
+  if (hg.y > ch) hourglasses.splice(i, 1);
+}
+
   // draw hearts
   for (let i = 0; i < maxLives; i++) {
     ctx.globalAlpha = i < lives ? 1 : .3;
@@ -173,7 +216,6 @@ function gameLoop() {
   ctx.globalAlpha = 1;
 
   // draw timer
-  const remain = Math.max(0, Math.ceil((timeLimit - elapsed) / 1000));
   ctx.font = "bold 28px sans-serif";
   ctx.fillStyle = "yellow";
   ctx.fillText(`TIME: ${remain}s`, 20, 40);
@@ -253,6 +295,11 @@ function gameLoop() {
       }
     }
   }
+  if (currentStage === 1 && Math.random() < 0.005) { // 확률 조절
+  const hx = Math.random() * (bgW - 40) + 20;
+  hourglasses.push({ x: hx, y: -30, w: 30, h: 30 });
+}
+
 
   // stage clear
 // stage clear
@@ -296,6 +343,13 @@ function goToMenu() {
 window.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') rightPressed = true;
   if (e.key === 'ArrowLeft') leftPressed = true;
+    if (e.key === 'k' || e.key === 'K') {
+    for (let r = 0; r < bricks.length; r++) {
+      for (let c = 0; c < bricks[r].length; c++) {
+        bricks[r][c].status = 0;
+      }
+    }
+  }
   
 });
 window.addEventListener('keyup', e => {

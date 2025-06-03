@@ -354,6 +354,7 @@ function goToMenu() {
 window.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") right = true;
   if (e.key === "ArrowLeft")  left  = true;
+  
 });
 window.addEventListener("keyup", e => {
   if (e.key === "ArrowRight") right = false;
