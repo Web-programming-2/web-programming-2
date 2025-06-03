@@ -46,16 +46,16 @@ const savedSkin = localStorage.getItem("ballSkin") || "basketball.png";
 const ballImage = new Image(); ballImage.src = savedSkin;
 
 let ballRadius = 12;
-const ballScale     = 0.2;
+const ballScale     = 0.25;
 const brickWidth    = 80;
 const brickHeight   = 40;
 const brickRowCount = 2;
-const brickOffsetTop= 100;
-const paddleWidth   = 100;
+const brickOffsetTop= 150;
+const paddleWidth   = 150;
 const paddleHeight  = 0;
 const paddleOffset  = 60;
 const maxLives      = 3;
-const heartSize     = 70;
+const heartSize     = 90;
 
 let dogW = 0, dogH = 0;
 dogImage.onload = () => {
@@ -72,7 +72,7 @@ ballImage.onload = () => {
 
 let cw, ch;
 let bgX = 0, bgY = 0, bgW = 0, bgH = 0;
-let x, y, dx = 3, dy = -3;
+let x, y, dx = 5, dy = -5;
 let paddleX;
 let rightPressed = false, leftPressed = false;
 let bricks = [], cols, brickOffsetLeft;
@@ -282,7 +282,7 @@ function circleRect(cx, cy, r, rx, ry, rw, rh) {
 function resetBall() {
   x = bgX + bgW / 2;
   y = bgY + bgH - paddleOffset - paddleHeight - ballRadius;
-  dx = 3; dy = -3;
+  dx = 5; dy = -5;
 }
 
 function explodeBricks(r, c) {
@@ -405,7 +405,7 @@ bgH = canvas.height;
   // (D) 패들(강아지) 그리기
   const padY = bgY + bgH - paddleOffset - paddleHeight;
   const dogX = paddleX + (paddleWidth - dogW)/2;
-  const dogY = padY + paddleHeight - 35;
+  const dogY = padY + paddleHeight - 70;
   ctx.drawImage(dogImage, dogX, dogY, dogW, dogH);
 
   // (E) 목숨(하트) 그리기
@@ -417,9 +417,9 @@ bgH = canvas.height;
   }
   ctx.globalAlpha = 1;
   // (E2) 점수판 그리기
-  ctx.font = "bold 28px sans-serif";
+  ctx.font = "bold 35px sans-serif";
   ctx.fillStyle = "#fff";
-  ctx.fillText(`Score: ${score}`, bgX + 20, bgY + 40);
+  ctx.fillText(`Score: ${score}`, bgX + 20, bgY + 65);
 
   // (F) 벽돌 충돌 체크
   const nextX = x + dx, nextY = y + dy;
