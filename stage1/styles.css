@@ -8,7 +8,6 @@ html, body {
   overflow: hidden;
 }
 
-/* ② Canvas를 중앙에 고정 */
 #gameCanvas {
   position: absolute;
   width: 75vmin;               /* 화면의 짧은 축의 75% */
@@ -19,6 +18,33 @@ html, body {
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 0;                  /* 가장 뒤 */
+}
+
+/* 전환 화면 */
+#transition-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: black;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+#transition-text {
+  position: relative;
+  z-index: 2;
+  font-size: 1.5rem;
+  color: white;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 80%;
 }
 
 #game-container {
@@ -34,7 +60,6 @@ html, body {
   z-index: 0;                  /* 뒤쪽 레이어 */
 }
 
-/* 만약 배경 이미지를 <img id="game-image">로 쓴다면 */
 #game-image {
   position: absolute;
   top: 0;
@@ -46,9 +71,35 @@ html, body {
   z-index: 0;     /* 게임 캔버스 뒤에 놓이거나 위에 놓을 수 있음 */
 }
 
-/* ────────────────────────────────────────────── */
-/* ③ 전환 화면 (transition-screen) */
-#transition-screen {
+
+#npc1{
+  position: absolute;
+  z-index: 100;
+  height: 670px;
+  width: 600px;
+  top:40%;
+  left: -3%;
+  
+   opacity: 0;
+  animation: fadenpc 2s forwards;
+}
+
+#npc1-text {
+  position: relative;
+  top: 30%;
+  left: 10%;
+  width: 100%;    
+  height: 100px;
+  padding: 100px 0 140px 0 ;
+  z-index: 2;
+  background-color: gray;
+  font-size: 3rem;
+  color: white;
+  text-align: center;
+  border-radius: 10px;
+  animation: fadeIn 3s forwards;
+}
+#npc-screen{
   display: none;
   position: absolute;
   top: 0; left: 0;
@@ -147,7 +198,6 @@ html, body {
   transform: scale(1.08);
   box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.2);
 }
-
 /* ────────────────────────────────────────────── */
 /* 애니메이션 키프레임 */
 @keyframes fadeIn {
