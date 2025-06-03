@@ -30,6 +30,12 @@ const paddleOff = 60;
 let   paddleX;
 let   dogW = 0, dogH = 0;
 
+// ─────────── 투명화 관련 변수 ───────────
+let paddleAlpha       = 1.0;       // 패들 불투명 상태
+const transparentAlpha = 0;       // 반투명 상태 알파
+const toggleInterval   = 1000;      // 토글 주기(ms)
+let lastToggleTime     = Date.now();
+
 /* Bricks */
 const brickW     = 60;
 const brickH     = 30;
@@ -144,6 +150,13 @@ function loop() {
     return;
   }
 
+  // ─────────── 투명화 토글 업데이트 ───────────
+  const now = Date.now();
+  if (now - lastToggleTime >= toggleInterval) {
+    paddleAlpha = (paddleAlpha === 1.0) ? transparentAlpha : 1.0;
+    lastToggleTime = now;
+  }
+
   ctx.clearRect(0, 0, cw, ch);
   ctx.globalAlpha = .4;
   ctx.drawImage(bgImg, 0, 0, bgW, bgH);
@@ -239,11 +252,14 @@ function loop() {
     ctx.fill();
   }
 
-  /* paddle & dog */
+  /* paddle & dog (투명도 적용) */
   const padY  = ch - paddleOff - paddleH;
   const dogX  = paddleX + (paddleW - dogW) / 2;
   const dogY  = padY - 35;  // 시각적 오프셋
+
+  ctx.globalAlpha = paddleAlpha;
   ctx.drawImage(dogImg, dogX, dogY, dogW, dogH);
+  ctx.globalAlpha = 1; // 다른 오브젝트에 영향 없도록 리셋
 
   /* hearts */
   for (let i = 0; i < maxLives; i++) {
