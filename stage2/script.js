@@ -1,3 +1,4 @@
+let score = 0;
 /* ---------- canvas & transition ---------- */
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -43,7 +44,7 @@ let extraTime = 0; // 추가된 시간 저장
 let ballW = 0, ballH = 0, ballR = 12;
 let dogW = 0, dogH = 0;
 let cw, ch, bgW, bgH, bgX = 0, bgY = 0;
-let x, y, dx = 5, dy = -5;
+let x, y, dx = 6, dy = -6;
 let paddleX;
 let rightPressed = false, leftPressed = false;
 let bricks = [], cols, brickLeft, brickTop, brickW, brickH;
@@ -71,6 +72,32 @@ function resizeCanvas() {
   cw = bgW = canvas.width;
   ch = bgH = canvas.height;
   paddleX = (bgW - paddleWidth) / 2;
+}
+function drawHourglass(ctx, x, y, width, height) {
+  const w = width;
+  const h = height;
+
+  // 외곽선 + 모래시계 모양
+  ctx.strokeStyle = "goldenrod";     // 외곽 테두리 색
+  ctx.lineWidth = 2;
+  ctx.fillStyle = "moccasin";        // 내부 모래 색
+
+  ctx.beginPath();
+  ctx.moveTo(x, y);                   // 좌상단
+  ctx.lineTo(x + w, y);              // 우상단
+  ctx.lineTo(x + w / 2, y + h / 2);  // 중앙 (교차점)
+  ctx.lineTo(x + w, y + h);          // 우하단
+  ctx.lineTo(x, y + h);              // 좌하단
+  ctx.lineTo(x + w / 2, y + h / 2);  // 중앙
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // 중앙 모래 점 표현
+  ctx.fillStyle = "orange";
+  ctx.beginPath();
+  ctx.arc(x + w / 2, y + h / 2, 3, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function circRect(cx, cy, r, rx, ry, rw, rh) {
@@ -102,16 +129,13 @@ function getPastelColor(row, col) {
   return `hsl(${hue}, 90%, 60%)`;
 }
 
-
-
 function resetBall() {
   x = bgW / 2;
   y = bgH - paddleOffset - paddleHeight - ballR;
-  dx = 5;
-  dy = -5;
+  dx = 6;
+  dy = -6;
   fall.length = 0;
 }
-
 function nextStage() {
   stageCleared = false;
   bgImage.src = stageBGs[currentStage];
@@ -121,7 +145,6 @@ function nextStage() {
   startTime = Date.now();
   requestAnimationFrame(gameLoop);
 }
-
 /* ---------- game loop ---------- */
 function gameLoop() {
   const elapsed = Date.now() - startTime;
@@ -136,18 +159,17 @@ function gameLoop() {
     location.reload();
     return;
   }
-
   const remain = Math.max(0, Math.ceil((timeLimit + extraTime - elapsed) / 1000));
-
   ctx.clearRect(0, 0, cw, ch);
   ctx.globalAlpha = 0.4;
   ctx.drawImage(bgImage, bgX, bgY, bgW, bgH);
   ctx.globalAlpha = 1;
-
   // draw timer
   ctx.font = "bold 28px sans-serif";
   ctx.fillStyle = "yellow";
   ctx.fillText(`TIME: ${remain}s`, 20, 40);
+  ctx.fillStyle = "white";
+ctx.fillText(`SCORE: ${score}`, 20, 80);
 
   // draw bricks
   // draw bricks
@@ -168,33 +190,23 @@ function gameLoop() {
       ctx.closePath();
     }
   }
-
-
-
   // draw ball
   ballW
     ? ctx.drawImage(ballImage, x - ballW / 2, y - ballH / 2, ballW, ballH)
     : (ctx.beginPath(), ctx.arc(x, y, ballR, 0, Math.PI * 2),
       ctx.fillStyle = "#0095DD", ctx.fill());
-
   // draw dog paddle
   const padY = bgH - paddleOffset - paddleHeight;
   const dogX = paddleX + (paddleWidth - dogW) / 2;
   const dogY = padY - 35;
   ctx.drawImage(dogImage, dogX, dogY, dogW, dogH);
-
   for (let i = hourglasses.length - 1; i >= 0; i--) {
   const hg = hourglasses[i];
   hg.y += 2;
 
-  // 그리기
-  ctx.fillStyle = "gold";
-  ctx.beginPath();
-  ctx.moveTo(hg.x + hg.w / 2, hg.y);
-  ctx.lineTo(hg.x, hg.y + hg.h);
-  ctx.lineTo(hg.x + hg.w, hg.y + hg.h);
-  ctx.closePath();
-  ctx.fill();
+  //모래시계
+  drawHourglass(ctx, hg.x, hg.y, hg.w, hg.h);
+
 
   // 충돌 검사
   if (circRect(x, y, ballR, hg.x, hg.y, hg.w, hg.h)) {
@@ -228,10 +240,12 @@ function gameLoop() {
       const bx = brickLeft + c * brickW;
       const by = brickTop + r * brickH;
       if (circRect(nx, ny, ballR, bx, by, brickW, brickH)) {
-        Math.abs(nx - (bx + brickW / 2)) > Math.abs(ny - (by + brickH / 2)) ? dx = -dx : dy = -dy;
-        b.status = 0;
-        break outer;
-      }
+  Math.abs(nx - (bx + brickW / 2)) > Math.abs(ny - (by + brickH / 2)) ? dx = -dx : dy = -dy;
+  b.status = 0;
+  score += 10; // ✅ 점수 10점 증가
+  break outer;
+}
+
     }
   }
 
@@ -295,7 +309,7 @@ function gameLoop() {
       }
     }
   }
-  if (currentStage === 1 && Math.random() < 0.005) { // 확률 조절
+  if (currentStage === 1 && Math.random() < 0.003) { // 확률 조절
   const hx = Math.random() * (bgW - 40) + 20;
   hourglasses.push({ x: hx, y: -30, w: 30, h: 30 });
 }
