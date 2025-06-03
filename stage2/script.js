@@ -1,3 +1,4 @@
+let score = 0;
 /* ---------- canvas & transition ---------- */
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -167,6 +168,9 @@ function gameLoop() {
   ctx.font = "bold 28px sans-serif";
   ctx.fillStyle = "yellow";
   ctx.fillText(`TIME: ${remain}s`, 20, 40);
+  ctx.fillStyle = "white";
+ctx.fillText(`SCORE: ${score}`, 20, 80);
+
   // draw bricks
   // draw bricks
   for (let r = 0; r < brickRows; r++) {
@@ -236,10 +240,12 @@ function gameLoop() {
       const bx = brickLeft + c * brickW;
       const by = brickTop + r * brickH;
       if (circRect(nx, ny, ballR, bx, by, brickW, brickH)) {
-        Math.abs(nx - (bx + brickW / 2)) > Math.abs(ny - (by + brickH / 2)) ? dx = -dx : dy = -dy;
-        b.status = 0;
-        break outer;
-      }
+  Math.abs(nx - (bx + brickW / 2)) > Math.abs(ny - (by + brickH / 2)) ? dx = -dx : dy = -dy;
+  b.status = 0;
+  score += 10; // ✅ 점수 10점 증가
+  break outer;
+}
+
     }
   }
 
