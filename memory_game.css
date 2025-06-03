@@ -1,4 +1,4 @@
-/* 기본 설정 */
+/* ====================== 기본 설정 ====================== */
 * {
   margin: 0;
   padding: 0;
@@ -8,22 +8,53 @@
 body, html {
   width: 100%;
   height: 100%;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   overflow: hidden;
+  position: relative; /* 배경 레이어 절대 위치 대비 */
 }
 
-/* 메뉴 화면 */
-#menu-container {
-  background-image: url('배경이미지.1.jpg');
-  background-size: contain; /* 변경 */
+/* ====================== 배경 레이어 ====================== */
+#bg-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: -1; /* 메인 콘텐츠 뒤에 배치 */
+}
+
+.bg-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-repeat: no-repeat;
   background-position: center center;
+  /* 원하는 크기로 조절 (예: 화면 너비의 35% 비율) */
+  background-size: 35vw auto;
+  opacity: 0; /* 기본적으로 투명 */
+  transition: opacity 1s ease-in-out; /* 페이드 인/아웃 애니메이션 */
+}
+
+/* 페이지 로드 직후 첫 번째 레이어만 보이도록 설정 */
+#bg-layer-1 {
+  opacity: 1;
+}
+
+/* ====================== 메뉴 화면 ====================== */
+#menu-container {
+  /* 기존에 배경 이미지 속성은 제거했습니다.
+     JS가 #bg-container 내 .bg-layer 두 개를 통해 이미지 전환을 담당합니다. */
   height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 10; /* 엽서나 다른 콘텐츠보다 위 */
 }
 
 .title {
@@ -66,8 +97,7 @@ body, html {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-
-/* 전환 화면 */
+/* ====================== 전환 화면 ====================== */
 #transition-screen {
   display: none;
   flex-direction: column;
@@ -79,10 +109,10 @@ body, html {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 10;
+  z-index: 10; /* 엽서나 메인 콘텐츠보다 위 */
 }
 
-/* 애니메이션 키프레임 추가 */
+/* 애니메이션 키프레임 (페이드 인 텍스트용) */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -111,6 +141,26 @@ body, html {
   max-width: 80%;
 }
 
+/* ====================== 스테이지 선택 중앙 정렬 ====================== */
+/* memory_game.css 에 추가 또는 수정 */
+#stage-select {
+  position: fixed;         /* 뷰포트 기준으로 위치 고정 */
+  top: 50%;                /* 뷰포트 높이의 50% 지점 */
+  left: 50%;               /* 뷰포트 너비의 50% 지점 */
+  transform: translate(-50%, -50%);
+                            /* 정확히 중앙(가로·세로)으로 옮기기 */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  background: transparent; /* 투명 배경(백그라운드를 비추고 싶지 않다면 투명으로) */
+  z-index: 20;
+}
+
+
+/* ====================== 게임 캔버스 화면 ====================== */
 #game-container {
   display: flex;
   justify-content: center;
@@ -119,8 +169,8 @@ body, html {
   height: 1200px;
   position: relative;
   margin: 0 auto;
+  z-index: 10; /* 엽서나 배경보다 위 */
 }
-
 
 #game-image {
   position: absolute;
@@ -139,7 +189,7 @@ body, html {
   z-index: 1;
 }
 
-/* 설정 화면 기본 배경 */
+/* ====================== 설정 화면 기본 배경 ====================== */
 #settings-screen {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
@@ -149,10 +199,11 @@ body, html {
   margin: 0 auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
   color: #fff;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Pretendard', sans-serif;
+  position: relative;
+  z-index: 10; /* 엽서나 배경보다 위 */
 }
 
-/* 제목 스타일 */
 #settings-screen h2 {
   font-size: 2.2rem;
   margin-bottom: 20px;
@@ -160,7 +211,6 @@ body, html {
   text-shadow: 1px 1px 4px #000;
 }
 
-/* 라벨 */
 #settings-screen label {
   font-size: 1.1rem;
   margin-top: 10px;
@@ -168,7 +218,6 @@ body, html {
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
 }
 
-/* 슬라이더 */
 #volume-slider {
   width: 100%;
   height: 8px;
@@ -189,13 +238,11 @@ body, html {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* 볼륨 값 */
 #volume-value {
   font-size: 1rem;
   margin-bottom: 10px;
 }
 
-/* 드롭다운 */
 #ball-select {
   width: 100%;
   padding: 10px;
@@ -208,13 +255,11 @@ body, html {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* 체크박스 라벨 */
 #bgm-toggle {
   transform: scale(1.3);
   margin-right: 10px;
 }
 
-/* 돌아가기 버튼 */
 #settings-back-button {
   margin-top: 30px;
   padding: 15px 30px;
@@ -232,17 +277,80 @@ body, html {
   transform: scale(1.05);
 }
 
-/* ---------- 스테이지 선택 중앙 정렬 ---------- */
-#stage-select {
-  position: fixed;          /* 뷰포트 기준 고정 */
-  inset: 0;                 /* top/right/bottom/left 모두 0 → 화면 전체 차지 */
-  display: flex;            /* 플렉스 컨테이너로 */
-  flex-direction: column;   /* 세로 배치 */
-  justify-content: center;  /* 세로 중앙 */
-  align-items: center;      /* 가로 중앙 */
-  gap: 20px;                /* 버튼 간격 */
-  text-align: center;       /* 헤더/버튼 텍스트 중앙 */
-  background: white;   /* 필요하면 살짝 어두운 배경(옵션) */
-  z-index: 10;              /* 다른 요소보다 위 */
+/* ====================== 엽서 스타일 (사진 자동 조정) ====================== */
+.postcard {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  background: url('bg1.png') no-repeat center/cover;
+  width: 260px;       /* 엽서 전체 너비 */
+  opacity: 1;
+}
+
+/* 왼쪽 엽서 위치 및 기울기 */
+.postcard-left {
+  left: 80px;
+  transform: translateY(-50%) rotate(-10deg);
+}
+
+/* 오른쪽 엽서 위치 및 기울기 */
+.postcard-right {
+  right: 80px;
+  transform: translateY(-50%) rotate(10deg);
+}
+
+/* —— 사진 프레임 + 검은 테두리 —— */
+.photo-wrapper {
+  position: relative;
+  width: 240px;              /* 프레임 너비 고정 */
+  height: 160px;             /* 프레임 높이 고정 */
+  border: 4px solid black;   
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  overflow: hidden;
+  margin: 10px auto;
+}
+
+/* 사진을 프레임에 자동 맞춤 (object-fit: cover) */
+.photo-wrapper img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;    /* 프레임을 가득 채우되, 비율 유지 */
+}
+
+/* —— 사진 위 테이프 장식 —— */
+.tape {
+  position: absolute;
+  top: -10px;                
+  width: 60px;               
+  height: 18px;              
+  background: rgba(255, 244, 184, 0.6);
+  border: 1px solid rgba(224, 212, 143, 0.6);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 2px;
+  z-index: 10;
+}
+
+.tape-left {
+  left: calc(50% - 120px + 6px);
+  transform: rotate(-5deg);
+}
+
+.tape-right {
+  left: calc(50% + 120px - 66px);
+  transform: rotate(5deg);
+}
+
+/* ====================== 메인 컨테이너 공통 ====================== */
+#menu-container,
+#transition-screen,
+#stage-select,
+#game-container,
+#settings-screen {
+  position: relative;
+  z-index: 10;
 }
 
