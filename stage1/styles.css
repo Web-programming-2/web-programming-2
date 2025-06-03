@@ -103,7 +103,6 @@ body {
   top: 0; left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.0); /* 완전 투명하거나, 약간 어둡게 하고 싶으면 rgba(0,0,0,0.3) 등 */
   display: flex;
   flex-direction: column;
   align-items: center;
