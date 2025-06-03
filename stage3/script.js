@@ -20,11 +20,11 @@ const heartImg   = new Image(); heartImg.src = "heart.png";
 let cw, ch, bgW, bgH;
 
 /* Ball */
-let ballW = 0, ballH = 0, ballR = 12, ballScale = 0.2;
+let ballW = 0, ballH = 0, ballR = 12, ballScale = 0.25;
 let x, y, dx = 5, dy = -5;
 
 /* Paddle / Dog */
-const paddleW   = 100;
+const paddleW   = 150;
 const paddleH   = 10;
 const paddleOff = 60;
 let   paddleX;
@@ -43,10 +43,10 @@ const ballTransAlpha = 0;
 let lastBallToggle   = Date.now();
 
 /* Bricks */
-const brickW     = 60;
-const brickH     = 30;
+const brickW     = 80;
+const brickH     = 40;
 const brickRows  = 3;
-const brickTop   = 100;
+const brickTop   = 180;
 let   cols, brickLeft, bricks = [];
 
 /* Falling blocks */
@@ -56,7 +56,7 @@ const fallSpeed = 1;
 /* Lives */
 let lives    = 3;
 const maxLives = 3;
-const heartS   = 50;
+const heartS   = 90;
 
 /* Control */
 let right = false, left = false, gameOver = false;
@@ -285,7 +285,7 @@ function loop() {
   /* paddle & dog (투명도 적용) */
   const padY  = ch - paddleOff - paddleH;
   const dogX  = paddleX + (paddleW - dogW) / 2;
-  const dogY  = padY - 35;  // 시각적 오프셋
+  const dogY  = padY - 70;  // 시각적 오프셋
 
   ctx.globalAlpha = paddleAlpha;
   ctx.drawImage(dogImg, dogX, dogY, dogW, dogH);
@@ -297,7 +297,7 @@ function loop() {
     ctx.drawImage(
         heartImg,
         cw - (i + 1) * (heartS + 5) - 10,
-        10,
+        30,
         heartS,
         heartS
     );
