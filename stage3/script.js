@@ -1,3 +1,4 @@
+let score = 0;
 /* ----------  캔버스 & 전환 화면  ---------- */
 const canvas = document.getElementById("gameCanvas");
 const ctx    = canvas.getContext("2d");
@@ -285,7 +286,7 @@ function loop() {
   /* paddle & dog (투명도 적용) */
   const padY  = ch - paddleOff - paddleH;
   const dogX  = paddleX + (paddleW - dogW) / 2;
-  const dogY  = padY - 70;  // 시각적 오프셋
+  const dogY  = padY - 75;  // 시각적 오프셋
 
   ctx.globalAlpha = paddleAlpha;
   ctx.drawImage(dogImg, dogX, dogY, dogW, dogH);
@@ -303,6 +304,10 @@ function loop() {
     );
   }
   ctx.globalAlpha = 1;
+
+  ctx.font = "bold 35px sans-serif";
+  ctx.fillStyle = "white";
+  ctx.fillText(`SCORE: ${score}`, 20, 100);
 
   /* collision with bricks */
   const nx = x + dx;
@@ -322,6 +327,7 @@ function loop() {
             ? (dx = -dx)
             : (dy = -dy);
         b.status = 0;
+        score+=10;
         break outer;
       }
     }

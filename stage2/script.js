@@ -172,7 +172,6 @@ function gameLoop() {
   ctx.fillText(`SCORE: ${score}`, 20, 120);
 
   // draw bricks
-  // draw bricks
   for (let r = 0; r < brickRows; r++) {
     for (let c = 0; c < cols; c++) {
       const b = bricks[r][c]; if (!b.status) continue;
@@ -227,11 +226,6 @@ function gameLoop() {
   }
   ctx.globalAlpha = 1;
 
-  // // draw timer
-  // ctx.font = "bold 28px sans-serif";
-  // ctx.fillStyle = "yellow";
-  // ctx.fillText(`TIME: ${remain}s`, 20, 40);
-
   // collision with bricks
   const nx = x + dx, ny = y + dy;
   outer: for (let r = 0; r < brickRows; r++) {
@@ -240,12 +234,11 @@ function gameLoop() {
       const bx = brickLeft + c * brickW;
       const by = brickTop + r * brickH;
       if (circRect(nx, ny, ballR, bx, by, brickW, brickH)) {
-  Math.abs(nx - (bx + brickW / 2)) > Math.abs(ny - (by + brickH / 2)) ? dx = -dx : dy = -dy;
-  b.status = 0;
-  score += 10; // ✅ 점수 10점 증가
-  break outer;
-}
-
+        Math.abs(nx - (bx + brickW / 2)) > Math.abs(ny - (by + brickH / 2)) ? dx = -dx : dy = -dy;
+        b.status = 0;
+        score += 10; // ✅ 점수 10점 증가
+        break outer;
+      }
     }
   }
 
