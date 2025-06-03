@@ -32,7 +32,7 @@ body {
 
 /* 캔버스 크기 비율 유지하면서 중앙에 */
 #gameCanvas {
-  width: 100vmin;
+  width: 75vmin;
   height: calc(75vmin * 1.38); /* 690:500 비율 */
 
   background-color: black;
@@ -78,11 +78,10 @@ body {
 #transition-image {
   object-fit: cover;
   opacity: 0;
+  width: 75vh;
   position: absolute;
   animation: fadeIn 2s forwards;
 }
-
-
 /* 전환 화면 */
 #transition-screen {
   display: none;
@@ -91,7 +90,7 @@ body {
   justify-content: center;
   background: black;
   height: 100vh;
-  width: 100%;
+  width: 75vh;
   position: absolute;
   top: 0;
   left: 0;
