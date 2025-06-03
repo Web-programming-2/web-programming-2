@@ -213,7 +213,6 @@ function startStage1_2() {
   currentStage = 1;
   bgImage = bgImages[currentStage];
 
-  if (typeof init === "function") init();
   init();
 }
 
