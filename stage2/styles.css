@@ -32,10 +32,9 @@ body {
 
 /* 캔버스 크기 비율 유지하면서 중앙에 */
 #gameCanvas {
-  width: 75vmin;
+  width: 100vmin;
   height: calc(75vmin * 1.38); /* 690:500 비율 */
-  max-width: 1200px;
-  max-height: 690px;
+
   background-color: black;
 }
 
@@ -222,4 +221,43 @@ body {
   height: 40px;
   cursor: pointer;
   z-index: 9999;
+}
+
+.image-wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 0 40px;
+}
+
+.side-image {
+  width: 300px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+}
+
+/* 테이프는 이미지 기준으로 절대 위치 */
+.tape {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  width: 60px;
+  height: 18px;
+  background: rgba(255, 244, 184, 0.7);
+  border: 1px solid rgba(224, 212, 143, 0.6);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 2px;
+  z-index: 10;
+}
+
+/* 왼쪽은 살짝 왼쪽으로 */
+.tape-left {
+  transform: rotate(-5deg);
+}
+
+/* 오른쪽은 살짝 오른쪽으로 */
+.tape-right {
+  left: unset;
+  right: 20px;
+  transform: rotate(5deg);
 }
