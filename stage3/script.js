@@ -133,15 +133,14 @@ function drawBG() {
   ctx.drawImage(bgImg, 0, 0, cw, ch);
 }
 
-function showLoad(cb) {
-  if (!trans) { cb(); return; }
+function showLoad() {
+  /*if (!trans) { cb(); return; }
   trans.style.display = "flex";
   setTimeout(() => {
     trans.style.display = "none";
     cb();
-  }, 2000);
+  }, 2000);*/
 }
-
 function nextStage() {
   if(!isPhase2) {
     isPhase2=true;
@@ -351,10 +350,10 @@ function loop() {
     stageClear = true;
 
     if (curStage < stageBGs.length - 1) {
-      showLoad(() => {
+     
         curStage++;
         nextStage();
-      });
+ 
     } else {
       alert("YOU WIN!");
       location.reload();
@@ -382,6 +381,14 @@ window.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") right = true;
   if (e.key === "ArrowLeft")  left  = true;
   
+  if (e.key === 'k' || e.key === 'K') {
+    for (let r = 0; r < bricks.length; r++) {
+      for (let c = 0; c < bricks[r].length; c++) {
+        bricks[r][c].status = 0;
+      }
+    }
+  }
+
 });
 window.addEventListener("keyup", e => {
   if (e.key === "ArrowRight") right = false;
