@@ -34,8 +34,27 @@ body {
 #gameCanvas {
   width: 75vmin;
   height: calc(75vmin * 1.38); /* 690:500 비율 */
-
   background-color: black;
+}
+#game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 690px;
+  height: 1200px;
+  position: relative;
+  margin: 0 auto;
+}
+
+
+#game-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 690px;
+  height: 1200px;
+  opacity: 0.45; /* 배경처럼 희미하게 */
+  z-index: 0;
 }
 
 /* 나가기 버튼 위치도 조정 */
@@ -110,28 +129,6 @@ body {
 }
 
 
-#game-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 690px;
-  height: 1200px;
-  position: relative;
-  margin: 0 auto;
-}
-
-
-#game-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 690px;
-  height: 1200px;
-  opacity: 0.45; /* 배경처럼 희미하게 */
-  z-index: 0;
-}
-
-
 #npc1{
   position: absolute;
   z-index: 100;
@@ -174,21 +171,6 @@ body {
   left: 0;
   z-index: 10;
 }
-#side-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  position: relative;
-  background-color: white;
-}
-
-#center-area {
-  position: relative;
-  z-index: 1;
-}
 
 .side-image {
   width: 150px;
@@ -204,7 +186,6 @@ body {
   margin-left: 50px;
   transform: rotate(3deg); /* 시계 방향으로 5도 회전 */
 }
-
 #left-img {
   width: 300px;
   height: 200px;
@@ -231,7 +212,6 @@ body {
 .side-image {
   width: 300px;
   height: auto;
-  border-radius: 12px;
   box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
 }
 

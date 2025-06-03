@@ -2,7 +2,7 @@
 
 // ───────────────────────────────────────────────────────────────
 // ❶ DOM 요소 가져오기
-const canvas           = document.getElementById("canvas-game");
+const canvas           = document.getElementById("gameCanvas");
 const ctx              = canvas.getContext("2d");
 const transitionScreen = document.getElementById("transition-screen");
 const gameContainer    = document.getElementById("game-container");
@@ -240,13 +240,18 @@ function init() {
 window.addEventListener("resize", resizeCanvas);
 
 function resizeCanvas() {
-  canvas.width  = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-  cw = canvas.width; ch = canvas.height;
-  bgW = cw; bgH = ch;
-  bgX = 0; bgY = 0;
+  const rect = canvas.getBoundingClientRect();  // 정확한 픽셀 크기
+  canvas.width  = rect.width;
+  canvas.height = rect.height;
+  cw = canvas.width;
+  ch = canvas.height;
+  bgX = 0;
+  bgY = 0;
+  bgW = canvas.width;
+  bgH = canvas.height;
   paddleX = (bgW - paddleWidth) / 2;
 }
+
 
 function initBricks() {
   cols = Math.floor(bgW / brickWidth);
@@ -344,6 +349,10 @@ window.addEventListener("keyup", e => {
 // ───────────────────────────────────────────────────────────────
 // ⓫ 본 게임 루프
 function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height); 
+bgW = canvas.width;
+bgH = canvas.height;
+
   if (gameOver) {
     setTimeout(() => { alert("GAME OVER"); location.reload(); }, 10);
     return;
