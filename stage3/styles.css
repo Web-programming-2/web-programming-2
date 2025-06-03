@@ -8,9 +8,7 @@ html, body {
 #gameCanvas {
   position: absolute;
   width: 75vmin; /* 화면의 짧은 축의 90% */
-  height: calc(90vmin * 1.38); /* 500:690 비율 유지 */
-  max-width: 1200px;
-  max-height: 690px;
+  height: calc(75vmin * 1.38); /* 500:690 비율 유지 */
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);

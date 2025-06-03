@@ -21,10 +21,10 @@ let cw, ch, bgW, bgH;
 
 /* Ball */
 let ballW = 0, ballH = 0, ballR = 12, ballScale = 0.2;
-let x, y, dx = 3, dy = -3;
+let x, y, dx = 5, dy = -5;
 
 /* Paddle / Dog */
-const paddleW   = 75;
+const paddleW   = 100;
 const paddleH   = 10;
 const paddleOff = 60;
 let   paddleX;
@@ -111,7 +111,7 @@ function resetBall() {
   x  = cx;
   y  = top - gap - ballR;
 
-  const speed = 4;
+  const speed = 6;
   const angle = Math.PI / 6 + Math.random() * Math.PI / 6; // 30°–60°
   const dir   = Math.random() < 0.5 ? -1 : 1;
 
