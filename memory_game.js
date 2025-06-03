@@ -13,10 +13,10 @@ const settingsBackBtn  = document.getElementById('settings-back-button');
 const volumeSlider     = document.getElementById('volume-slider');
 const volumeValue      = document.getElementById('volume-value');
 const bgmToggle        = document.getElementById('bgm-toggle');
-const ballSelect       = document.getElementById('ball-select');      // ⬅️ NEW
+const ballSelect       = document.getElementById('ball-select');
 
 /* ---------- 오디오 ---------- */
-const bgm              = document.getElementById('bgm');   // <audio>
+const bgm = document.getElementById('bgm');   // <audio>
 
 /* ====================== UI 동기화 함수 ====================== */
 function syncSettingsUI () {
@@ -76,14 +76,42 @@ bgmToggle.addEventListener('change', e => {
 
 /* ====================== 공 모양 선택 ====================== */
 ballSelect.addEventListener('change', e => {
-  /* 선택 값을 로컬스토리지에 저장 – 스테이지에서 읽어감 */
   localStorage.setItem('ballSkin', e.target.value);
+});
+
+/* ====================== 스테이지 이동 ====================== */
+document.querySelectorAll('#stage-select .menu-button').forEach(btn => {
+  btn.addEventListener('click', e => {
+    const target = e.currentTarget.dataset.stage;
+    if (!target) return;
+
+    // (선택 사항) BGM 재생 위치와 음소거 상태를 저장하려면 아래 두 줄을 추가합니다:
+    // localStorage.setItem('bgm-time', bgm.currentTime);
+    // localStorage.setItem('bgm-muted', bgm.muted);
+
+    window.location.href = target;
+  });
 });
 
 /* ====================== 초기화 ====================== */
 window.addEventListener('DOMContentLoaded', () => {
-  /* 최초 음량‧뮤트 상태 */
+  /* 최초 음량·뮤트 상태 */
   bgm.volume = parseFloat(volumeSlider.value);   // HTML 기본값(0.5)
-  bgm.muted  = true;                            // 자동재생 방지용
+  bgm.muted  = false;                            // 🔊 처음부터 켜기
+  bgm.removeAttribute('muted');                  // 태그에 mute 속성 붙어 있어도 무시
+
   syncSettingsUI();
+
+  /* 오디오 자동 재생 시도 */
+  const playPromise = bgm.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      /* 자동 재생이 차단되면 첫 사용자 클릭에서 다시 시도 */
+      const resume = () => {
+        bgm.play().catch(() => {});
+        document.body.removeEventListener('click', resume);
+      };
+      document.body.addEventListener('click', resume, { once: true });
+    });
+  }
 });

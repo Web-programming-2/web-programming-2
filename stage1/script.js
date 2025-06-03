@@ -152,7 +152,7 @@ function nextStage() {
     resetBall();
   } else if (currentStage === 1) {
     // Stage 2 → Stage 3 페이지로 이동
-    window.location.href = "../stage3/index.html";
+    window.location.href = "../stage2/index.html";
   } else {
     alert('🎉 모든 스테이지를 클리어했습니다!');
     location.reload();
