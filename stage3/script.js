@@ -31,8 +31,8 @@ let   paddleX;
 let   dogW = 0, dogH = 0;
 
 /* Bricks */
-const brickW     = 75;
-const brickH     = 20;
+const brickW     = 60;
+const brickH     = 30;
 const brickRows  = 3;
 const brickTop   = 100;
 let   cols, brickLeft, bricks = [];
@@ -63,23 +63,11 @@ dogImg.onload = () => {
 
 /* ----------  유틸리티  ---------- */
 function resize() {
-  const ratio  = 9 / 16;
-  const winW   = window.innerWidth;
-  const winH   = window.innerHeight;
-  let   w      = winW;
-  let   h      = w / ratio;
-
-  if (h > winH) {
-    h = winH;
-    w = h * ratio;
-  }
-  canvas.width  = w;
-  canvas.height = h;
-
-  cw = bgW = w;
-  ch = bgH = h;
-
-  paddleX = (cw - paddleW) / 2;
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+  cw = bgW = canvas.width;
+  ch = bgH = canvas.height;
+  paddleX = (bgW - paddleW) / 2;
 }
 
 function getPastelColor(row, col) {
@@ -126,17 +114,10 @@ function circRect(cx, cy, r, rx, ry, rw, rh) {
 }
 
 function drawBG() {
-  if (!bgImg.complete || !bgImg.naturalWidth) return;
-
-  const s  = Math.max(cw / bgImg.width, ch / bgImg.height);
-  const w  = bgImg.width  * s;
-  const h  = bgImg.height * s;
-  const sx = (cw - w) / 2;
-  const sy = (ch - h) / 2;
-
-  ctx.filter = "blur(3px)";
-  ctx.drawImage(bgImg, sx, sy, w, h);
-  ctx.filter = "none";
+  // 원본 이미지를 딱 캔버스 크기만큼 그려서 선명도를 유지
+  if (!bgImg.complete) return;
+  ctx.globalAlpha = 1;
+  ctx.drawImage(bgImg, 0, 0, cw, ch);
 }
 
 function showLoad(cb) {
@@ -155,14 +136,6 @@ function nextStage() {
   resetBall();
 }
 
-/* ----------  초기화 함수  ---------- */
-function init() {
-  resize();
-  buildBricks();
-  resetBall();
-  requestAnimationFrame(loop);
-}
-
 /* ----------  메인 루프  ---------- */
 function loop() {
   if (gameOver) {
@@ -172,7 +145,9 @@ function loop() {
   }
 
   ctx.clearRect(0, 0, cw, ch);
-  drawBG();
+  ctx.globalAlpha = .4;
+  ctx.drawImage(bgImg, 0, 0, bgW, bgH);
+  ctx.globalAlpha = 1;
 
   /* bricks */
   for (let r = 0; r < brickRows; r++) {
@@ -364,4 +339,9 @@ window.addEventListener("keyup", e => {
 //   paddleX = Math.max(0, Math.min(e.clientX - paddleW / 2, cw - paddleW));
 // });
 window.addEventListener("resize", resize);
-window.addEventListener("load", init);
+window.addEventListener("load", () => {
+  resize();
+  buildBricks();
+  resetBall();
+  requestAnimationFrame(loop);
+});
