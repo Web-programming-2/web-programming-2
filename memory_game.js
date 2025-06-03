@@ -8,6 +8,12 @@ const transitionScreen = document.getElementById('transition-screen');
 const stageSelect      = document.getElementById('stage-select');
 const settingsScreen   = document.getElementById('settings-screen');
 
+const skipBtn = document.getElementById('skip-button');
+skipBtn.addEventListener('click', () => {
+  menuContainer.style.display = 'none';
+  stageSelect.style.display   = 'flex';
+});
+
 /* ---------- 설정 화면 요소 ---------- */
 const settingsBackBtn  = document.getElementById('settings-back-button');
 const volumeSlider     = document.getElementById('volume-slider');
