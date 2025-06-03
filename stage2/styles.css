@@ -5,11 +5,6 @@ html, body {
   height: 100%;
   overflow: hidden;
 }
-canvas {
-  display: block;
-  width: 100vw;
-  height: 100vh;
-}
 #gameCanvas {
   position: absolute;
   width: 75vmin; /* 화면의 짧은 축의 90% */

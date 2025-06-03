@@ -36,11 +36,14 @@ const maxLives = 3;
 const heartSize = 70;
 const timeLimit = 30_000;
 
+let hourglasses = []; // 모래시계 아이템 목록
+let extraTime = 0; // 추가된 시간 저장
+
 /* ---------- run-time state ---------- */
 let ballW = 0, ballH = 0, ballR = 12;
 let dogW = 0, dogH = 0;
 let cw, ch, bgW, bgH, bgX = 0, bgY = 0;
-let x, y, dx = 5, dy = -5;
+let x, y, dx = 6, dy = -6;
 let paddleX;
 let rightPressed = false, leftPressed = false;
 let bricks = [], cols, brickLeft, brickTop, brickW, brickH;
@@ -68,6 +71,32 @@ function resizeCanvas() {
   cw = bgW = canvas.width;
   ch = bgH = canvas.height;
   paddleX = (bgW - paddleWidth) / 2;
+}
+function drawHourglass(ctx, x, y, width, height) {
+  const w = width;
+  const h = height;
+
+  // 외곽선 + 모래시계 모양
+  ctx.strokeStyle = "goldenrod";     // 외곽 테두리 색
+  ctx.lineWidth = 2;
+  ctx.fillStyle = "moccasin";        // 내부 모래 색
+
+  ctx.beginPath();
+  ctx.moveTo(x, y);                   // 좌상단
+  ctx.lineTo(x + w, y);              // 우상단
+  ctx.lineTo(x + w / 2, y + h / 2);  // 중앙 (교차점)
+  ctx.lineTo(x + w, y + h);          // 우하단
+  ctx.lineTo(x, y + h);              // 좌하단
+  ctx.lineTo(x + w / 2, y + h / 2);  // 중앙
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // 중앙 모래 점 표현
+  ctx.fillStyle = "orange";
+  ctx.beginPath();
+  ctx.arc(x + w / 2, y + h / 2, 3, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function circRect(cx, cy, r, rx, ry, rw, rh) {
@@ -99,16 +128,13 @@ function getPastelColor(row, col) {
   return `hsl(${hue}, 90%, 60%)`;
 }
 
-
-
 function resetBall() {
   x = bgW / 2;
   y = bgH - paddleOffset - paddleHeight - ballR;
-  dx = 5;
-  dy = -5;
+  dx = 6;
+  dy = -6;
   fall.length = 0;
 }
-
 function nextStage() {
   stageCleared = false;
   bgImage.src = stageBGs[currentStage];
@@ -118,18 +144,29 @@ function nextStage() {
   startTime = Date.now();
   requestAnimationFrame(gameLoop);
 }
-
 /* ---------- game loop ---------- */
 function gameLoop() {
   const elapsed = Date.now() - startTime;
-  if (elapsed > timeLimit) { alert("TIME OVER"); location.reload(); return; }
-  if (gameOver) { alert("GAME OVER"); location.reload(); return; }
 
+  if (elapsed > timeLimit + extraTime) {
+    alert("TIME OVER");
+    location.reload();
+    return;
+  }
+  if (gameOver) {
+    alert("GAME OVER");
+    location.reload();
+    return;
+  }
+  const remain = Math.max(0, Math.ceil((timeLimit + extraTime - elapsed) / 1000));
   ctx.clearRect(0, 0, cw, ch);
-  ctx.globalAlpha = .4;
+  ctx.globalAlpha = 0.4;
   ctx.drawImage(bgImage, bgX, bgY, bgW, bgH);
   ctx.globalAlpha = 1;
-
+  // draw timer
+  ctx.font = "bold 28px sans-serif";
+  ctx.fillStyle = "yellow";
+  ctx.fillText(`TIME: ${remain}s`, 20, 40);
   // draw bricks
   // draw bricks
   for (let r = 0; r < brickRows; r++) {
@@ -149,20 +186,34 @@ function gameLoop() {
       ctx.closePath();
     }
   }
-
-
-
   // draw ball
   ballW
     ? ctx.drawImage(ballImage, x - ballW / 2, y - ballH / 2, ballW, ballH)
     : (ctx.beginPath(), ctx.arc(x, y, ballR, 0, Math.PI * 2),
       ctx.fillStyle = "#0095DD", ctx.fill());
-
   // draw dog paddle
   const padY = bgH - paddleOffset - paddleHeight;
   const dogX = paddleX + (paddleWidth - dogW) / 2;
   const dogY = padY - 35;
   ctx.drawImage(dogImage, dogX, dogY, dogW, dogH);
+  for (let i = hourglasses.length - 1; i >= 0; i--) {
+  const hg = hourglasses[i];
+  hg.y += 2;
+
+  //모래시계
+  drawHourglass(ctx, hg.x, hg.y, hg.w, hg.h);
+
+
+  // 충돌 검사
+  if (circRect(x, y, ballR, hg.x, hg.y, hg.w, hg.h)) {
+    extraTime += 5000; // 5초 추가
+    hourglasses.splice(i, 1);
+    continue;
+  }
+
+  // 화면 벗어나면 제거
+  if (hg.y > ch) hourglasses.splice(i, 1);
+}
 
   // draw hearts
   for (let i = 0; i < maxLives; i++) {
@@ -173,7 +224,6 @@ function gameLoop() {
   ctx.globalAlpha = 1;
 
   // draw timer
-  const remain = Math.max(0, Math.ceil((timeLimit - elapsed) / 1000));
   ctx.font = "bold 28px sans-serif";
   ctx.fillStyle = "yellow";
   ctx.fillText(`TIME: ${remain}s`, 20, 40);
@@ -253,6 +303,11 @@ function gameLoop() {
       }
     }
   }
+  if (currentStage === 1 && Math.random() < 0.003) { // 확률 조절
+  const hx = Math.random() * (bgW - 40) + 20;
+  hourglasses.push({ x: hx, y: -30, w: 30, h: 30 });
+}
+
 
   // stage clear
 // stage clear
@@ -296,6 +351,13 @@ function goToMenu() {
 window.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') rightPressed = true;
   if (e.key === 'ArrowLeft') leftPressed = true;
+    if (e.key === 'k' || e.key === 'K') {
+    for (let r = 0; r < bricks.length; r++) {
+      for (let c = 0; c < bricks[r].length; c++) {
+        bricks[r][c].status = 0;
+      }
+    }
+  }
   
 });
 window.addEventListener('keyup', e => {
