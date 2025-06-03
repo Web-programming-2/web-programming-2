@@ -76,10 +76,14 @@ let x, y, dx = 5, dy = -5;
 let paddleX;
 let rightPressed = false, leftPressed = false;
 let bricks = [], cols, brickOffsetLeft;
-let falling = [];
 let lives = maxLives;
 let gameOver = false;
 let stageCleared = false;
+
+// ───────────────────────────────────────────────────────────────
+// ▶ 추가된 전역 변수들 (1-2 스테이지 '정적 벽돌을 떨어트리기' 관리용)
+let brickFallOffset = 0;         // 벽돌이 얼마나 아래로 떨어졌는지 누적된 값
+const brickFallSpeed = 0.05;        // 떨어지는 속도(px/frame)
 
 // ───────────────────────────────────────────────────────────────
 // ❷ 페이지 로드 시: 인트로 → 초기 NPC → 스테이지1
@@ -214,6 +218,9 @@ function startStage1_2() {
   currentStage = 1;
   bgImage = bgImages[currentStage];
 
+  // ** 스테이지1-2 진입 시 벽돌 낙하 관련 변수 초기화 **
+  brickFallOffset = 0;
+
   init();
 }
 
@@ -252,7 +259,6 @@ function resizeCanvas() {
   paddleX = (bgW - paddleWidth) / 2;
 }
 
-
 function initBricks() {
   cols = Math.floor(bgW / brickWidth);
   brickOffsetLeft = bgX + (bgW - cols * brickWidth) / 2;
@@ -269,20 +275,30 @@ function initBricks() {
       };
     }
   }
-  falling = [];
 }
 
+// ───────────────────────────────────────────────────────────────
+// 원-사각 충돌 판정: 공(cx,cy,r) vs 사각형(rx,ry,rw,rh)
 function circleRect(cx, cy, r, rx, ry, rw, rh) {
   const nx = Math.max(rx, Math.min(cx, rx + rw));
   const ny = Math.max(ry, Math.min(cy, ry + rh));
   const dx0 = cx - nx, dy0 = cy - ny;
-  return dx0*dx0 + dy0*dy0 <= r*r;
+  return dx0 * dx0 + dy0 * dy0 <= r * r;
 }
 
 function resetBall() {
   x = bgX + bgW / 2;
   y = bgY + bgH - paddleOffset - paddleHeight - ballRadius;
-  dx = 5; dy = -5;
+
+  if (currentStage === 1) {
+    // 1-2 스테이지에서는 속도를 느리게
+    dx = 3;
+    dy = -3;
+  } else {
+    // 스테이지1 기본 속도
+    dx = 5;
+    dy = -5;
+  }
 }
 
 function explodeBricks(r, c) {
@@ -307,7 +323,6 @@ function nextStage() {
     console.log("nextStage(): 스테이지1 클리어 → mid NPC 호출");
     stageCleared = true;
     dx = 0; dy = 0;
-    //gameContainer.style.display = "none";
     showMidNpcScreen(0);
     return;
   }
@@ -349,9 +364,9 @@ window.addEventListener("keyup", e => {
 // ───────────────────────────────────────────────────────────────
 // ⓫ 본 게임 루프
 function gameLoop() {
-ctx.clearRect(0, 0, canvas.width, canvas.height); 
-bgW = canvas.width;
-bgH = canvas.height;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  bgW = canvas.width;
+  bgH = canvas.height;
 
   if (gameOver) {
     setTimeout(() => { alert("GAME OVER"); location.reload(); }, 10);
@@ -365,32 +380,72 @@ bgH = canvas.height;
   ctx.drawImage(bgImage, bgX, bgY, bgW, bgH);
   ctx.globalAlpha = 1.0;
 
-  // (B) 벽돌 그리기
+  // ───────────────────────────────────────────────────────────────
+  // ■ 1-2 스테이지 전용: brickFallOffset 업데이트
+  if (currentStage === 1) {
+    brickFallOffset += brickFallSpeed;
+  }
+
+  // ───────────────────────────────────────────────────────────────
+  // (B) 정적 벽돌(사실상 떨어지는) 그리기 & 충돌 처리
   for (let r = 0; r < brickRowCount; r++) {
     for (let c = 0; c < cols; c++) {
       const b = bricks[r][c];
-      if (b.status === 1) {
-        const bx = brickOffsetLeft + c * brickWidth;
-        const by = bgY + brickOffsetTop + r * brickHeight;
-        ctx.fillStyle = b.type === "electric" ? "#ffff99" : getPastelColor(r, c);
-        ctx.lineJoin = "round";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect?.(bx, by, brickWidth, brickHeight, 10);
-        ctx.fill();
-        ctx.strokeStyle = "#aaa";
-        ctx.stroke();
-        ctx.closePath();
+      if (b.status !== 1) continue;
+
+      // 원래 위치: by0 = bgY + brickOffsetTop + r*brickHeight
+      // 스테이지1-2에서는 by = by0 + brickFallOffset
+      let bx = brickOffsetLeft + c * brickWidth;
+      let by0 = bgY + brickOffsetTop + r * brickHeight;
+      let by = (currentStage === 1) ? (by0 + brickFallOffset) : by0;
+
+      // (B1) 그리기
+      ctx.fillStyle = b.type === "electric" ? "#ffff99" : getPastelColor(r, c);
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect?.(bx, by, brickWidth, brickHeight, 10);
+      ctx.fill();
+      ctx.strokeStyle = "#aaa";
+      ctx.stroke();
+      ctx.closePath();
+      if (b.type === "electric") {
+        const iconSize = brickHeight * 0.8;
+        const iconX = bx + (brickWidth - iconSize) / 2;
+        const iconY = by + (brickHeight - iconSize) / 2;
+        ctx.drawImage(lightningImage, iconX, iconY, iconSize, iconSize);
+      }
+
+      // (B2) 충돌 처리: 공↔벽돌
+      const nextX = x + dx, nextY = y + dy;
+      if (circleRect(nextX, nextY, ballRadius, bx, by, brickWidth, brickHeight)) {
+        // 공 반사
+        const cx = bx + brickWidth/2, cy = by + brickHeight/2;
+        if (Math.abs(nextX - cx) > Math.abs(nextY - cy)) dx = -dx;
+        else dy = -dy;
+
+        // 벽돌 제거 + 점수
         if (b.type === "electric") {
-          const iconSize = brickHeight * 0.8;
-          const iconX = bx + (brickWidth - iconSize) / 2;
-          const iconY = by + (brickHeight - iconSize) / 2;
-          ctx.drawImage(lightningImage, iconX, iconY, iconSize, iconSize);
+          explodeBricks(r, c);
+          b.status = 0;
+          score += 10;
+        } else {
+          b.status = 0;
+          score += 10;
+        }
+      }
+
+      // (B3) 스테이지1-2인 경우: 벽돌이 바닥에 닿으면 목숨 차감 + 벽돌 제거
+      if (currentStage === 1) {
+        if (by + brickHeight >= (bgY + bgH)) {
+          lives--;
+          b.status = 0;
         }
       }
     }
   }
 
+  // ───────────────────────────────────────────────────────────────
   // (C) 공 그리기
   if (ballW && ballH) {
     ctx.drawImage(ballImage, x - ballW/2, y - ballH/2, ballW, ballH);
@@ -421,38 +476,8 @@ bgH = canvas.height;
   ctx.fillStyle = "#fff";
   ctx.fillText(`Score: ${score}`, bgX + 20, bgY + 65);
 
-  // (F) 벽돌 충돌 체크
-  const nextX = x + dx, nextY = y + dy;
-  outer: for (let r = 0; r < brickRowCount; r++) {
-    for (let c = 0; c < cols; c++) {
-      const b = bricks[r][c];
-      if (b.status !== 1) continue;
-      const bx = brickOffsetLeft + c * brickWidth;
-      const by = bgY + brickOffsetTop + r * brickHeight;
-      if (circleRect(nextX, nextY, ballRadius, bx, by, brickWidth, brickHeight)) {
-        const cx = bx + brickWidth/2, cy = by + brickHeight/2;
-        if (Math.abs(nextX - cx) > Math.abs(nextY - cy)) dx = -dx; else dy = -dy;
-        if (b.type === "electric") {
-          explodeBricks(r, c);
-          b.status = 0;
-        } else {
-          b.status = 0;
-        }
-        if (b.type === "electric") {
-  explodeBricks(r, c);
-  b.status = 0;
-  score += 10;  // 점수 증가
-} else {
-  b.status = 0;
-  score += 10;  // 점수 증가
-}
-
-        break outer;
-      }
-    }
-  }
-
-  // (G) 벽 반사 / 패들 충돌 처리
+  // ───────────────────────────────────────────────────────────────
+  // (G) 벽 반사 / 패들 충돌 처리 (공 ↔ 패들/벽)
   if (x + dx > bgX + bgW - ballRadius || x + dx < bgX + ballRadius) dx = -dx;
   if (y + dy < bgY + ballRadius) dy = -dy;
   else if (circleRect(x + dx, y + dy, ballRadius, paddleX, padY, paddleWidth, paddleHeight)) {
@@ -462,15 +487,17 @@ bgH = canvas.height;
     resetBall();
   }
 
+  // ───────────────────────────────────────────────────────────────
   // (H) 남은 벽돌 검사 → 모두 깨면 nextStage() 호출
   const remaining = bricks.flat().filter(b => b.status === 1).length;
   if (remaining === 0 && lives > 0 && !stageCleared) {
-    console.log("모든 벽돌 제거됨 → nextStage()"); 
+    console.log("모든 벽돌 제거됨 → nextStage()");
     stageCleared = true;
     nextStage();
     return;
   }
 
+  // ───────────────────────────────────────────────────────────────
   // (I) 공 위치 업데이트 · 패들 이동 · 목숨 체크
   x += dx;  y += dy;
   if (rightPressed && paddleX < bgX + bgW - paddleWidth) paddleX += 7;
@@ -480,6 +507,7 @@ bgH = canvas.height;
   requestAnimationFrame(gameLoop);
 }
 
+// ───────────────────────────────────────────────────────────────
 function getPastelColor(row, col) {
   const hue = ((row + col) * 40) % 360;
   return `hsl(${hue}, 90%, 60%)`;
