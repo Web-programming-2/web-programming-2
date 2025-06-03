@@ -5,16 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>설기의 추억여행</title>
   <link rel="stylesheet" href="memory_game.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+  />
 </head>
 <body>
+  <!-- 1) 배경 레이어를 위한 컨테이너 -->
+  <div id="bg-container">
+    <div class="bg-layer" id="bg-layer-1"></div>
+    <div class="bg-layer" id="bg-layer-2"></div>
+  </div>
+  
+  <!-- 좌측 엽서 (흰 여백에 배치, 사진 외부에 테이프) -->
+  <div class="postcard postcard-left">
+    <div class="photo-wrapper">
+      <img src="images/postcard-left.jpg" alt="왼쪽 엽서 사진" />
+    </div>
+    <div class="tape tape-left"></div>
+    <div class="tape tape-right"></div>
+  </div>
+
+  <!-- 우측 엽서 (흰 여백에 배치, 사진 외부에 테이프) -->
+  <div class="postcard postcard-right">
+    <div class="photo-wrapper">
+      <img src="images/postcard-right.jpg" alt="오른쪽 엽서 사진" />
+    </div>
+    <div class="tape tape-left"></div>
+    <div class="tape tape-right"></div>
+  </div>
+
   <!-- 1. 메뉴 화면 -->
   <div class="container" id="menu-container">
-    <h1 class="title">설기의 <br>추억여행!</h1>
+    <h2 class="title">설기의 <br>추억 여행</h2>
     <div class="menu">
       <button class="menu-button" id="start-button">🎮 게임 시작</button>
       <button class="menu-button" id="settings-button">⚙️ 설정</button>
       <button class="menu-button" id="skip-button"> 바로 스테이지 </button>
-
     </div>
   </div>
 
@@ -26,12 +53,14 @@
     </p>
   </div>
 
-  <!-- 3. 스테이지 선택 화면 -->
-  <div id="stage-select" class="container" style="display: none; text-align: center;">
-    <h2>어디로 떠나볼까?</h2>
-    <button class="menu-button" onclick="location.href='stage1/index.html'">🐾 Stage 1 새싹의여운</button>
-    <button class="menu-button" onclick="location.href='stage2/index.html'">🐾 Stage 2 열정의계절</button>
-    <button class="menu-button" onclick="location.href='stage3/index.html'">🐾 Stage 3 얼음빛추억</button>
+
+  <!-- 3. 스테이지 선택 화면 (z-index 추가) -->
+  <div id="stage-select" class="container" style="display: none; text-align: center; z-index: 20;">
+
+    <!-- data-stage 속성을 반드시 넣어야 JS가 링크를 읽을 수 있습니다 -->
+    <button class="menu-button" data-stage="stage1/index.html">   Stage 1 새싹의여운</button>
+    <button class="menu-button" data-stage="stage2/index.html">🐾 Stage 2 열정의계절</button>
+    <button class="menu-button" data-stage="stage3/index.html">🐾 Stage 3 얼음빛추억</button>
   </div>
 
   <!-- 4. 게임 캔버스 화면 -->
@@ -41,30 +70,35 @@
   </div>
 
   <!-- 5. 설정 화면 -->
-  <div id="settings-screen" class="container" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
-    <h2>⚙️ 게임 설정</h2>
+  <div id="settings-screen" class="container" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; z-index: 20;">
+    <h2>게임 설정</h2>
 
     <!-- 볼륨 슬라이더 -->
-    <label for="volume-slider">🔊 볼륨</label>
+    <label for="volume-slider"></label>
     <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" />
-    <span id="volume-value">50%</span>
+    <span id="volume-value"></span>
 
     <!-- BGM 토글 -->
     <label>
       <input type="checkbox" id="bgm-toggle" />
-      🎵 배경음악 켜기
+      배경음악 켜기
     </label>
 
     <!-- 공 모양 선택 -->
-    <label for="ball-select">🏀 공 모양 선택</label>
+    <label for="ball-select">공 모양 선택</label>
     <select id="ball-select">
       <option value="basketball.png">농구공</option>
       <option value="soccerball.png">축구공</option>
       <option value="baseball.png">야구공</option>
     </select>
 
+<<<<<<< Updated upstream
     <!-- 뒤로가기 버튼 -->
     <button class="menu-button" id="settings-back-button">⬅️ 돌아가기</button>
+=======
+    <!-- 뒤로가기 버튼 (예: 스테이지1로 돌아가기) -->
+    <button class="menu-button" data-stage="stage1/index.html" id="settings-back-button">돌아가기</button>
+>>>>>>> Stashed changes
   </div>
 
   <!-- 6. BGM 오디디오 요소 (음소거 상태 시작, JS에서 켤 수 있음) -->
