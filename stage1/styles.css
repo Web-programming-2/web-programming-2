@@ -10,8 +10,8 @@ html, body {
 
 #gameCanvas {
   position: absolute;
-  width: 75vmin;               /* 화면의 짧은 축의 75% */
-  height: calc(75vmin * 1.38); /* 대략 500:690 비율 유지 */
+  width: 75vh;               /* 화면의 짧은 축의 75% */
+  height: 100vh; /* 대략 500:690 비율 유지 */
   max-width: 1200px;
   max-height: 690px;
   left: 50%;
@@ -28,7 +28,7 @@ html, body {
   justify-content: center;
   background: black;
   height: 100vh;
-  width: 100%;
+  width: 75vh;
   position: absolute;
   top: 0;
   left: 0;
@@ -52,8 +52,8 @@ html, body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 75vmin;               /* 캔버스와 동일 비율 */
-  height: calc(75vmin * 1.38);
+  width: 75vh;               /* 캔버스와 동일 비율 */
+  height: 75vh;
   max-width: 1200px;
   max-height: 690px;
   overflow: hidden;
@@ -86,8 +86,8 @@ html, body {
 
 #transition-image {
   object-fit: cover;
-  width: 100%;
-  height: 100%;
+  width: 75vh;
+  height: 100vh;
   opacity: 0;            /* fadeIn 애니메이션에 의해 점점 나타남 */
   animation: fadeIn 2s forwards;
 }
@@ -125,8 +125,8 @@ html, body {
 /* NPC 이미지 */
 #npc1 {
   position: relative;       /* 절대가 아니라 상대 위치여도 됩니다 */
-  top: 52%;
-  left:-34%;
+  top: 50vh;
+  left:-60vh;
   z-index: 12;
   width: 850px;
   height: 1080px;
@@ -136,23 +136,25 @@ html, body {
 
 #npc2 {
   position: relative;       /* 절대가 아니라 상대 위치여도 됩니다 */
-  top: 52%;
-  left:-44%;
+  top: 50vh;
+  left:-80vh;
   z-index: 12;
   opacity: 0;
   animation: fadenpc 2s forwards;
 }
+
 #npc3 {
   position: relative;       /* 절대가 아니라 상대 위치여도 됩니다 */
-  top: 52%;
-  left:-44%;
+  top: 50vh;
+  left:-80vh;
   z-index: 12;
   opacity: 0;
   animation: fadenpc 2s forwards;
 }
+
 #npc4 {
   position: relative;       /* 절대가 아니라 상대 위치여도 됩니다 */
-  top: 52%;
+  top: 52vh;
   left:-40%;
   z-index: 12;
   width: 40%;
@@ -161,10 +163,12 @@ html, body {
   animation: fadenpc 2s forwards;
 }
 
+
+
 /* NPC 대사 텍스트 */
 #npc1-text {
   position: relative;
-  top: -20%;
+  top: -40vh;
   z-index: 11;
   width: 90%;
   background-color: gray;
@@ -179,7 +183,7 @@ html, body {
 
 #npc2-text {
   position: relative;
-  top: 10%;
+  top: -0vh;
   z-index: 11;
   width: 90%;
   background-color: gray;
@@ -194,7 +198,7 @@ html, body {
 
 #npc3-text {
   position: relative;
-  top: 10%;
+  top: 0vh;
   z-index: 11;
   width: 90%;
   background-color: gray;
@@ -209,7 +213,7 @@ html, body {
 
 #npc4-text {
   position: relative;
-  top: 10%;
+  top: 0vh;
   z-index: 11;
   width: 90%;
   background-color: gray;
