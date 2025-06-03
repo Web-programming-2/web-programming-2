@@ -126,7 +126,7 @@ html, body {
 #npc1 {
   position: relative;       /* 절대가 아니라 상대 위치여도 됩니다 */
   top: 50vh;
-  left:-60vh;
+  left:-67vh;
   z-index: 12;
   width: 850px;
   height: 1080px;
