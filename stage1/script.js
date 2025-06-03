@@ -23,6 +23,7 @@ const finalNpcScreens   = allNpcScreens.slice(initialNpcCount + midNpcCount,
 
 const lightningImage   = new Image();
 lightningImage.src     = "lightning.png";
+let score = 0;
 
 // ───────────────────────────────────────────────────────────────
 // ** bgImages 배열에는 오직 스테이지1과 스테이지1-2용 이미지만 둡니다. **
@@ -348,7 +349,7 @@ window.addEventListener("keyup", e => {
 // ───────────────────────────────────────────────────────────────
 // ⓫ 본 게임 루프
 function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); 
+ctx.clearRect(0, 0, canvas.width, canvas.height); 
 bgW = canvas.width;
 bgH = canvas.height;
 
@@ -415,6 +416,10 @@ bgH = canvas.height;
     ctx.drawImage(heartImage, hx, hy, heartSize, heartSize);
   }
   ctx.globalAlpha = 1;
+  // (E2) 점수판 그리기
+  ctx.font = "bold 28px sans-serif";
+  ctx.fillStyle = "#fff";
+  ctx.fillText(`Score: ${score}`, bgX + 20, bgY + 40);
 
   // (F) 벽돌 충돌 체크
   const nextX = x + dx, nextY = y + dy;
@@ -433,6 +438,15 @@ bgH = canvas.height;
         } else {
           b.status = 0;
         }
+        if (b.type === "electric") {
+  explodeBricks(r, c);
+  b.status = 0;
+  score += 10;  // 점수 증가
+} else {
+  b.status = 0;
+  score += 10;  // 점수 증가
+}
+
         break outer;
       }
     }
