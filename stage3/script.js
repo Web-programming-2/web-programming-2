@@ -30,11 +30,17 @@ const paddleOff = 60;
 let   paddleX;
 let   dogW = 0, dogH = 0;
 
+// 스테이지 3-2 진입 플래그
+let isPhase2 = false;
 // ─────────── 투명화 관련 변수 ───────────
 let paddleAlpha       = 1.0;       // 패들 불투명 상태
 const transparentAlpha = 0;       // 반투명 상태 알파
 const toggleInterval   = 1000;      // 토글 주기(ms)
 let lastToggleTime     = Date.now();
+// 공 투명화
+let ballAlpha       = 1.0;
+const ballTransAlpha = 0;
+let lastBallToggle   = Date.now();
 
 /* Bricks */
 const brickW     = 60;
@@ -136,14 +142,21 @@ function showLoad(cb) {
 }
 
 function nextStage() {
-  stageClear = false;
-  bgImg.src  = stageBGs[curStage];
-  buildBricks();
-  resetBall();
+  if(!isPhase2) {
+    isPhase2=true;
+    stageClear = false;
+    bgImg.src  = stageBGs[curStage];
+    lives = maxLives;
+    buildBricks();
+    resetBall();
+    return;
+  }
+  alert("Stage 3 모두 클리어!");
 }
 
 /* ----------  메인 루프  ---------- */
 function loop() {
+  console.log(">> loop() 시작, isPhase2=", isPhase2);
   if (gameOver) {
     alert("GAME OVER");
     location.reload();
@@ -152,9 +165,23 @@ function loop() {
 
   // ─────────── 투명화 토글 업데이트 ───────────
   const now = Date.now();
-  if (now - lastToggleTime >= toggleInterval) {
-    paddleAlpha = (paddleAlpha === 1.0) ? transparentAlpha : 1.0;
-    lastToggleTime = now;
+  if (!isPhase2) {
+    // Phase1(3-1): 패들만 1초마다 토글, 공은 항상 불투명
+    if (now - lastToggleTime >= toggleInterval) {
+      paddleAlpha = (paddleAlpha === 1.0) ? transparentAlpha : 1.0;
+      lastToggleTime = now;
+    }
+    ballAlpha = 1.0;
+  } else {
+    // Phase2(3-2): 패들과 공 둘 다 1초마다 토글
+    if (now - lastToggleTime >= toggleInterval) {
+      paddleAlpha = (paddleAlpha === 1.0) ? transparentAlpha : 1.0;
+      lastToggleTime = now;
+    }
+    if (now - lastBallToggle >= toggleInterval) {
+      ballAlpha = (ballAlpha === 1.0) ? ballTransAlpha : 1.0;
+      lastBallToggle = now;
+    }
   }
 
   ctx.clearRect(0, 0, cw, ch);
@@ -244,7 +271,11 @@ function loop() {
   }
 
   /* ball */
-  if (ballW) ctx.drawImage(ballImg, x - ballW / 2, y - ballH / 2, ballW, ballH);
+  if (ballW) {
+    ctx.globalAlpha = ballAlpha;
+    ctx.drawImage(ballImg, x - ballW / 2, y - ballH / 2, ballW, ballH);
+    ctx.globalAlpha = 1;
+  }
   else {
     ctx.beginPath();
     ctx.arc(x, y, ballR, 0, Math.PI * 2);
