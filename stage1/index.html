@@ -1,27 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Breakout Game</title>
+  <title>Stage 1: 봄날의 기억</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* 소리 토글 아이콘 위치 조정 */
+    #sound-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+  </style>
 </head>
-
 <body>
-  <!-- 게임 화면 -->
-  <canvas id="gameCanvas"></canvas>
+  <!-- 0. 소리 켜기/끄기 버튼 (페이지 상단 오른쪽) -->
+  <img id="sound-toggle" src="sound_off.png" alt="소리 켜기" />
 
+  <!-- 1. 게임 화면 -->
+  <canvas id="gameCanvas"></canvas>
   <button id="back-to-menu" onclick="goToMenu()">🏠 게임 나가기</button>
 
-  <!-- 스테이지 전환(로딩) 화면 -->
+  <!-- 2. 스테이지 전환(로딩) 화면 -->
   <div id="transition-screen" class="container" style="display: none;">
-    <img src="봄1_로딩창.jpg" alt="Intro Image" id="transition-image">
-    <p id="transition-text">봄에는 역시 벚꽃! 무작정 반포 한강 공원으로 가보려는데 도착한 뚝섬 유원지에서 피크닉을 잠시 즐겨보자</p>
+    <img src="봄1_로딩창.jpg" alt="Intro Image" id="transition-image" />
+    <p id="transition-text">
+      봄에는 역시 벚꽃! 무작정 반포 한강 공원으로 가보려는데 도착한 뚝섬 유원지에서 피크닉을 잠시 즐겨보자
+    </p>
   </div>
 
+  <!-- 3. 게임 내부 캔버스 -->
   <div id="game-container" style="display: none;">
     <canvas id="canvas-game" width="690" height="1200"></canvas>
   </div>
+
+  <!-- 4. BGM 오디오 요소 -->
+  <audio id="bgm" src="../bgm.mp3" loop autoplay muted></audio>
+
+  <!-- 5. 스테이지 전용 JS -->
   <script src="script.js"></script>
+
+  <!-- 6. 소리 토글 & 이어 재생 스크립트 -->
+  <script>
+    function goToMenu() {
+      const bgm = document.getElementById('bgm');
+      if (bgm) {
+        localStorage.setItem('bgm-time', bgm.currentTime);
+        localStorage.setItem('bgm-muted', bgm.muted);
+      }
+      window.location.href = '../memory_game.html';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const bgm = document.getElementById('bgm');
+      const soundToggle = document.getElementById('sound-toggle');
+
+      if (!bgm || !soundToggle) return;
+
+      // 항상 음소거로 시작하고 저장된 정보는 무시
+      localStorage.removeItem('bgm-time');
+      localStorage.removeItem('bgm-muted');
+      bgm.muted = true;
+
+      // 아이콘 상태 업데이트 함수
+      function updateIcon() {
+        if (bgm.muted) {
+          soundToggle.src = 'sound_off.png';
+          soundToggle.alt = '소리 켜기';
+        } else {
+          soundToggle.src = 'sound_on.png';
+          soundToggle.alt = '소리 끄기';
+        }
+      }
+      updateIcon();
+
+      // 자동 재생 시도
+      const playPromise = bgm.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          const resume = () => {
+            bgm.play().catch(() => {});
+            document.body.removeEventListener('click', resume);
+          };
+          document.body.addEventListener('click', resume, { once: true });
+        });
+      }
+
+      // 소리 토글 클릭 이벤트
+      soundToggle.addEventListener('click', () => {
+        bgm.muted = !bgm.muted;
+        if (!bgm.muted) {
+          bgm.play().catch(() => {});
+        } else {
+          bgm.pause();
+        }
+        updateIcon();
+      });
+    });
+  </script>
 </body>
 </html>
