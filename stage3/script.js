@@ -156,7 +156,6 @@ function nextStage() {
 
 /* ----------  메인 루프  ---------- */
 function loop() {
-  console.log(">> loop() 시작, isPhase2=", isPhase2);
   if (gameOver) {
     alert("GAME OVER");
     location.reload();
