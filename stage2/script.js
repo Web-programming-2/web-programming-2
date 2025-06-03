@@ -509,7 +509,7 @@ window.addEventListener('load', () => {
   Object.assign(introOverlay.style, {
     position: 'fixed',
     top: '0',
-    left: '60vh',
+    left: '55vh',
     width: '75vh',
     height: '100vh',
     backgroundImage: "url('backgroundme.jpg')",

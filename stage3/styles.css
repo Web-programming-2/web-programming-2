@@ -252,3 +252,12 @@ html, body {
   margin-right: 50px;
   transform: rotate(-3deg); /* 반시계 방향으로 5도 회전 */
 }
+    #sound-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      z-index: 1000;
+    }

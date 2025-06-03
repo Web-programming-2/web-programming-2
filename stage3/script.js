@@ -355,14 +355,14 @@ function loop() {
         nextStage();
  
     } else {
-      alert("YOU WIN!");
-      location.reload();
+      alert("모든 stage를 클리어 하였습니다.");
+      goToMenu();
       return;
     }
   }
 
   /* move */
-  x += dx;
+  x += dx;  
   y += dy;
 
   if (right && paddleX < cw - paddleW) paddleX += 7;
