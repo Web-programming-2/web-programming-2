@@ -125,8 +125,8 @@ html, body {
 /* NPC 이미지 */
 #npc1 {
   position: relative;       /* 절대가 아니라 상대 위치여도 됩니다 */
-  top: 52%;
-  left:-34%;
+  top: 50vh;
+  left:-60vh;
   z-index: 12;
   width: 850px;
   height: 1080px;
@@ -136,23 +136,25 @@ html, body {
 
 #npc2 {
   position: relative;       /* 절대가 아니라 상대 위치여도 됩니다 */
-  top: 52%;
-  left:-44%;
+  top: 50vh;
+  left:-80vh;
   z-index: 12;
   opacity: 0;
   animation: fadenpc 2s forwards;
 }
+
 #npc3 {
   position: relative;       /* 절대가 아니라 상대 위치여도 됩니다 */
-  top: 52%;
-  left:-44%;
+  top: 50vh;
+  left:-80vh;
   z-index: 12;
   opacity: 0;
   animation: fadenpc 2s forwards;
 }
+
 #npc4 {
   position: relative;       /* 절대가 아니라 상대 위치여도 됩니다 */
-  top: 52%;
+  top: 52vh;
   left:-40%;
   z-index: 12;
   width: 40%;
@@ -161,10 +163,12 @@ html, body {
   animation: fadenpc 2s forwards;
 }
 
+
+
 /* NPC 대사 텍스트 */
 #npc1-text {
   position: relative;
-  top: -20%;
+  top: -40vh;
   z-index: 11;
   width: 90%;
   background-color: gray;
@@ -179,7 +183,7 @@ html, body {
 
 #npc2-text {
   position: relative;
-  top: 10%;
+  top: -0vh;
   z-index: 11;
   width: 90%;
   background-color: gray;
@@ -194,7 +198,7 @@ html, body {
 
 #npc3-text {
   position: relative;
-  top: 10%;
+  top: 0vh;
   z-index: 11;
   width: 90%;
   background-color: gray;
@@ -209,7 +213,7 @@ html, body {
 
 #npc4-text {
   position: relative;
-  top: 10%;
+  top: 0vh;
   z-index: 11;
   width: 90%;
   background-color: gray;
