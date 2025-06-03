@@ -342,8 +342,8 @@ window.addEventListener("keyup", e => {
   if (e.key === "ArrowRight") right = false;
   if (e.key === "ArrowLeft")  left  = false;
 });
-canvas.addEventListener("mousemove", e => {
-  paddleX = Math.max(0, Math.min(e.clientX - paddleW / 2, cw - paddleW));
-});
+// canvas.addEventListener("mousemove", e => {
+//   paddleX = Math.max(0, Math.min(e.clientX - paddleW / 2, cw - paddleW));
+// });
 window.addEventListener("resize", resize);
 window.addEventListener("load", init);
